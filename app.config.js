@@ -37,10 +37,10 @@ module.exports = ({ config }) => {
         "expo-build-properties",
         {
           android: {
-            compileSdkVersion: 34,
-            targetSdkVersion: 34,
-            minSdkVersion: 24,  // CRITICAL: Must be 24 for Hermes hermestooling compatibility
-            buildToolsVersion: "34.0.0",
+            compileSdkVersion: 35,  // UPDATED: Required by androidx.core:core:1.16.0
+            targetSdkVersion: 34,   // Keep at 34 for compatibility
+            minSdkVersion: 24,      // CRITICAL: Must be 24 for Hermes hermestooling compatibility
+            buildToolsVersion: "35.0.0",  // UPDATED: Matches compileSdk
             usesCleartextTraffic: true,
             enableProguardInReleaseBuilds: true,
             enableHermes: true

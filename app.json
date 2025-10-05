@@ -33,10 +33,10 @@
         "expo-build-properties",
         {
           "android": {
-            "compileSdkVersion": 34,
+            "compileSdkVersion": 35,
             "targetSdkVersion": 34,
             "minSdkVersion": 24,
-            "buildToolsVersion": "34.0.0",
+            "buildToolsVersion": "35.0.0",
             "usesCleartextTraffic": true,
             "enableProguardInReleaseBuilds": true,
             "enableHermes": true
