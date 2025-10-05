@@ -23,7 +23,12 @@
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#FF9933"
       },
-      "package": "com.aquaintel.app"
+      "package": "com.aquaintel.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "PLACEHOLDER_WILL_BE_REPLACED_AT_BUILD_TIME"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/logo.png"

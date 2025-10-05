@@ -63,6 +63,12 @@ module.exports = ({ config }) => {
       firebaseMessagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
       firebaseAppId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
       
+      // Google Maps API
+      googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
+      
+      // Gemini AI API
+      geminiApiKey: process.env.EXPO_PUBLIC_GEMINI_API_KEY,
+      
       // Demo credentials
       demoEmail: process.env.EXPO_PUBLIC_DEMO_EMAIL,
       demoPassword: process.env.EXPO_PUBLIC_DEMO_PASSWORD,
