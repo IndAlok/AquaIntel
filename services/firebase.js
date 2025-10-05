@@ -26,12 +26,16 @@ const validateConfig = () => {
     console.error('❌ FIREBASE CONFIGURATION ERROR');
     console.error('Missing required environment variables:');
     missingKeys.forEach(key => {
-      console.error(`  - EXPO_PUBLIC_FIREBASE_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`);
+      const envVarName = `EXPO_PUBLIC_FIREBASE_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
+      const value = process.env[envVarName];
+      console.error(`  - ${envVarName}: ${value ? 'SET' : 'MISSING/EMPTY'}`);
     });
-    console.error('\n📝 Please update your .env file with actual Firebase credentials.');
+    console.error('\n📝 IMPORTANT: Environment variables are bundled at BUILD TIME!');
+    console.error('📦 If you updated .env after building, you must REBUILD the app.');
+    console.error('🔧 Run: npx eas build -p android --profile preview');
     console.error('📖 See FIREBASE_SETUP.md for detailed instructions.\n');
     
-    throw new Error('Firebase configuration incomplete. Please check your .env file.');
+    throw new Error('Firebase configuration incomplete. Rebuild the app after updating .env file.');
   }
 };
 
