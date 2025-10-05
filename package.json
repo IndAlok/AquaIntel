@@ -23,9 +23,9 @@
     "expo-build-properties": "^0.11.1",
     "expo-linear-gradient": "~12.7.0",
     "expo-status-bar": "~1.11.1",
-    "firebase": "^10.7.1",
+    "firebase": "^11.10.0",
     "react": "18.2.0",
-    "react-native": "0.73.0",
+    "react-native": "^0.73.11",
     "react-native-gesture-handler": "~2.14.0",
     "react-native-maps": "1.10.0",
     "react-native-paper": "^5.11.6",
@@ -42,6 +42,10 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-native": "^4.1.0",
     "prettier": "^3.0.0"
+  },
+  "overrides": {
+    "semver": "^7.6.0",
+    "send": "^0.19.0"
   },
   "private": true
 }
