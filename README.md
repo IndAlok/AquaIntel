@@ -7,7 +7,7 @@
 [![Smart India Hackathon](https://img.shields.io/badge/SIH-2025-orange)](https://sih.gov.in/)
 [![React Native](https://img.shields.io/badge/React%20Native-0.73-61dafb)](https://reactnative.dev/)
 [![Expo](https://img.shields.io/badge/Expo-~50.0-000020)](https://expo.dev/)
-[![Firebase](https://img.shields.io/badge/Firebase-10.7-orange)](https://firebase.google.com/)
+[![Firebase](https://img.shields.io/badge/Firebase-11.10-orange)](https://firebase.google.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
@@ -87,7 +87,7 @@ AquaIntel is a sophisticated mobile application designed for real-time evaluatio
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/IndAlok/AquaIntel.git
    cd AquaIntel
    ```
 
@@ -235,8 +235,8 @@ Or create a new account using the signup flow.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/aquaintel.git
-cd aquaintel
+git clone https://github.com/IndAlok/AquaIntel.git
+cd AquaIntel
 
 # Install dependencies
 npm install
@@ -297,7 +297,7 @@ Developed for **Smart India Hackathon 2025**
 
 - 📧 Email: support@aquaintel.gov.in
 - 🌐 Website: https://aquaintel.gov.in
-- 💬 Issues: [GitHub Issues](https://github.com/yourusername/aquaintel/issues)
+- 💬 Issues: [GitHub Issues](https://github.com/IndAlok/AquaIntel/issues)
 
 ## 🙏 Acknowledgments
 
@@ -313,10 +313,12 @@ If you find this project useful, please consider giving it a star! ⭐
 
 ## 📊 Project Stats
 
-![GitHub stars](https://img.shields.io/github/stars/yourusername/aquaintel?style=social)
-![GitHub forks](https://img.shields.io/github/forks/yourusername/aquaintel?style=social)
-![GitHub issues](https://img.shields.io/github/issues/yourusername/aquaintel)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/yourusername/aquaintel)
+![GitHub stars](https://img.shields.io/github/stars/IndAlok/AquaIntel?style=social)
+![GitHub forks](https://img.shields.io/github/forks/IndAlok/AquaIntel?style=social)
+![GitHub issues](https://img.shields.io/github/issues/IndAlok/AquaIntel)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/IndAlok/AquaIntel)
+![GitHub last commit](https://img.shields.io/github/last-commit/IndAlok/AquaIntel)
+![GitHub repo size](https://img.shields.io/github/repo-size/IndAlok/AquaIntel)
 
 ---
 
