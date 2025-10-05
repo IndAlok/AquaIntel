@@ -1,0 +1,24 @@
+mutation AddFavoriteStation($userId: UUID!, $dwlrStationId: UUID!) @auth(level: USER) {
+  favoriteStation_insert(data: { userId: $userId, dwlrStationId: $dwlrStationId })
+}
+
+query ListDWLRStations @auth(level: PUBLIC) {
+  dWLRStations {
+    id
+    name
+    latitude
+    longitude
+  }
+}
+
+query GetGroundwaterReadingsForStation($dwlrStationId: UUID!) @auth(level: USER) {
+  groundwaterReadings(where: { dwlrStationId: { eq: $dwlrStationId } }) {
+    id
+    timestamp
+    waterLevel
+  }
+}
+
+mutation UpdateUserPreferences($id: UUID!, $preferences: String) @auth(level: USER) {
+  user_update(key: {id: $id}, data: { preferences: $preferences })
+}

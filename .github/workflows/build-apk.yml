@@ -1,0 +1,57 @@
+name: Build APK
+
+on:
+  # Trigger on manual workflow dispatch
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Build profile (preview or production)'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - preview
+          - production
+  
+  # Or trigger on tags for releases
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🏗 Setup repo
+      uses: actions/checkout@v5
+    
+    - name: 🏗 Setup Node
+      uses: actions/setup-node@v5
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: 🏗 Setup EAS
+      uses: expo/expo-github-action@v8
+      with:
+        expo-version: latest
+        eas-version: latest
+        token: ${{ secrets.EXPO_TOKEN }}
+    
+    - name: 📦 Install dependencies
+      run: npm ci
+    
+    - name: 🚀 Build APK with EAS
+      run: eas build --platform android --profile ${{ github.event.inputs.profile || 'preview' }} --non-interactive --no-wait
+    
+    - name: 📝 Build info
+      run: |
+        echo "🎉 Build started successfully!"
+        echo "📱 Platform: Android"
+        echo "🏷️ Profile: ${{ github.event.inputs.profile || 'preview' }}"
+        echo "📊 Check build status at: https://expo.dev"
+        echo ""
+        echo "⏰ The build will take 10-15 minutes."
+        echo "📥 You'll receive the APK download link in your Expo dashboard."

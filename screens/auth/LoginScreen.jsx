@@ -37,15 +37,20 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const handleDemoLogin = async () => {
-    setEmail('demo@aquaintel.gov.in');
-    setPassword('demo123456');
+    // Use credentials from environment variables
+    const demoEmail = process.env.EXPO_PUBLIC_DEMO_EMAIL || 'demo@aquaintel.gov.in';
+    const demoPassword = process.env.EXPO_PUBLIC_DEMO_PASSWORD || 'AquaIntel@2025';
+    
+    setEmail(demoEmail);
+    setPassword(demoPassword);
     
     setLoading(true);
-    const result = await login('demo@aquaintel.gov.in', 'demo123456');
+    const result = await login(demoEmail, demoPassword);
     setLoading(false);
 
     if (!result.success) {
-      setError('Demo account not available. Please sign up.');
+      setError('Demo account not available. Please create this account first or sign up with your own credentials.');
+      console.log('💡 Tip: Create a Firebase user with email:', demoEmail);
     }
   };
 

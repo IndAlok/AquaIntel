@@ -10,9 +10,13 @@
     "lint": "eslint . --ext .js,.jsx",
     "lint:fix": "eslint . --ext .js,.jsx --fix",
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{js,jsx,json,md}\""
+    "format:check": "prettier --check \"**/*.{js,jsx,json,md}\"",
+    "doctor": "expo doctor",
+    "build:android": "eas build --platform android --profile preview",
+    "build:android:prod": "eas build --platform android --profile production"
   },
   "dependencies": {
+    "@dataconnect/generated": "file:src/dataconnect-generated",
     "@expo/vector-icons": "^14.0.0",
     "@react-native-async-storage/async-storage": "1.21.0",
     "@react-navigation/bottom-tabs": "^6.5.11",
@@ -21,6 +25,7 @@
     "expo": "~50.0.0",
     "expo-blur": "~12.9.0",
     "expo-build-properties": "^0.11.1",
+    "expo-font": "~11.10.3",
     "expo-linear-gradient": "~12.7.0",
     "expo-status-bar": "~1.11.1",
     "firebase": "^11.10.0",

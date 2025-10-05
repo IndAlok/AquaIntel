@@ -45,7 +45,13 @@
             "deploymentTarget": "13.4"
           }
         }
-      ]
-    ]
+      ],
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "c8380ef2-81a3-4816-9cf7-9c722ea15087"
+      }
+    }
   }
 }

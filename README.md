@@ -117,7 +117,26 @@ AquaIntel is a sophisticated mobile application designed for real-time evaluatio
    npm run web
    ```
 
-## 🔧 Configuration
+## � Building APK for Testing
+
+**Don't know how to build an APK?** No problem! You don't need Android Studio or complex setup.
+
+### Quick Build (3 commands)
+```bash
+npm install -g eas-cli
+eas login
+eas build -p android --profile preview
+```
+
+### OR Test Without Building
+```bash
+npx expo start
+# Then scan QR code with Expo Go app on your phone
+```
+
+**📖 Complete Guide:** See [QUICK_BUILD.md](QUICK_BUILD.md) or [BUILD_APK_GUIDE.md](BUILD_APK_GUIDE.md) for detailed instructions.
+
+## �🔧 Configuration
 
 ### Firebase Setup
 
