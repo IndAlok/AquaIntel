@@ -5,16 +5,27 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import Constants from 'expo-constants';
 
 // Firebase configuration from environment variables
-// IMPORTANT: Set these in your .env file!
+// In development: uses process.env
+// In production/builds: uses Constants.expoConfig.extra
+const getEnvVar = (key) => {
+  // Try expo-constants first (works in builds)
+  if (Constants.expoConfig?.extra?.[key]) {
+    return Constants.expoConfig.extra[key];
+  }
+  // Fallback to process.env (works in development)
+  return process.env[`EXPO_PUBLIC_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`];
+};
+
 const firebaseConfig = {
-  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID
+  apiKey: getEnvVar('firebaseApiKey'),
+  authDomain: getEnvVar('firebaseAuthDomain'),
+  projectId: getEnvVar('firebaseProjectId'),
+  storageBucket: getEnvVar('firebaseStorageBucket'),
+  messagingSenderId: getEnvVar('firebaseMessagingSenderId'),
+  appId: getEnvVar('firebaseAppId')
 };
 
 // Validate Firebase configuration
