@@ -43,7 +43,9 @@ module.exports = ({ config }) => {
             buildToolsVersion: "35.0.0",  // UPDATED: Matches compileSdk
             usesCleartextTraffic: true,
             enableProguardInReleaseBuilds: true,
-            enableHermes: true
+            enableHermes: true,
+            enableShrinkResourcesInReleaseBuilds: true,  // Remove unused resources
+            extraProguardRules: "-keep class com.facebook.hermes.unicode.** { *; }\n-keep class com.facebook.jni.** { *; }"
           },
           ios: {
             deploymentTarget: "15.1"
