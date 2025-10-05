@@ -20,16 +20,14 @@ module.exports = ({ config }) => {
     ],
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.aquaintel.app",
-      googleServicesFile: process.env.GOOGLE_SERVICES_INFOPLIST
+      bundleIdentifier: "com.aquaintel.app"
     },
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/logo.png",
         backgroundColor: "#FF9933"
       },
-      package: "com.aquaintel.app",
-      googleServicesFile: process.env.GOOGLE_SERVICES_JSON
+      package: "com.aquaintel.app"
     },
     web: {
       favicon: "./assets/logo.png"
@@ -52,10 +50,7 @@ module.exports = ({ config }) => {
           }
         }
       ],
-      "expo-font",
-      "@react-native-firebase/app",
-      "@react-native-firebase/analytics",
-      "@react-native-firebase/crashlytics"
+      "expo-font"
     ],
     extra: {
       // Firebase configuration exposed to app

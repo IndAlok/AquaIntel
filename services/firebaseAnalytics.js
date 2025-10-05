@@ -1,13 +1,27 @@
 // services/firebaseAnalytics.js
-// Firebase Analytics and Crashlytics integration
+// Firebase Analytics using Web SDK (compatible with Expo)
 
-import analytics from '@react-native-firebase/analytics';
-import crashlytics from '@react-native-firebase/crashlytics';
+import { getAnalytics, logEvent as firebaseLogEvent, setUserId as firebaseSetUserId, setUserProperties } from 'firebase/analytics';
+import app from './firebase';
+
+// Initialize Analytics
+let analytics;
+try {
+  analytics = getAnalytics(app);
+  console.log('✅ Firebase Analytics initialized');
+} catch (error) {
+  console.warn('⚠️ Firebase Analytics not available:', error.message);
+}
 
 // Analytics service
 export const logEvent = async (eventName, params = {}) => {
+  if (!analytics) {
+    console.warn('Analytics not initialized, skipping event:', eventName);
+    return;
+  }
+  
   try {
-    await analytics().logEvent(eventName, params);
+    firebaseLogEvent(analytics, eventName, params);
     console.log(`📊 Analytics: ${eventName}`, params);
   } catch (error) {
     console.error('Analytics error:', error);
@@ -16,8 +30,10 @@ export const logEvent = async (eventName, params = {}) => {
 
 // Log screen view
 export const logScreenView = async (screenName, screenClass = null) => {
+  if (!analytics) return;
+  
   try {
-    await analytics().logScreenView({
+    firebaseLogEvent(analytics, 'screen_view', {
       screen_name: screenName,
       screen_class: screenClass || screenName
     });
@@ -28,10 +44,12 @@ export const logScreenView = async (screenName, screenClass = null) => {
 };
 
 // Set user properties
-export const setUserProperty = async (name, value) => {
+export const setUserProperty = async (properties) => {
+  if (!analytics) return;
+  
   try {
-    await analytics().setUserProperty(name, value);
-    console.log(`👤 User Property: ${name} = ${value}`);
+    setUserProperties(analytics, properties);
+    console.log(`👤 User Properties:`, properties);
   } catch (error) {
     console.error('User property error:', error);
   }
@@ -39,59 +57,41 @@ export const setUserProperty = async (name, value) => {
 
 // Set user ID
 export const setUserId = async (userId) => {
+  if (!analytics) return;
+  
   try {
-    await analytics().setUserId(userId);
-    await crashlytics().setUserId(userId);
+    firebaseSetUserId(analytics, userId);
     console.log(`🆔 User ID set: ${userId}`);
   } catch (error) {
     console.error('User ID error:', error);
   }
 };
 
-// Crashlytics service
+// Error logging (console only in web SDK)
 export const logError = (error, context = {}) => {
   try {
-    crashlytics().recordError(error);
-    crashlytics().log(`Error in ${context.screen || 'unknown'}: ${error.message}`);
-    console.error('🔥 Crashlytics: Error logged', error);
+    console.error('🔥 Error:', error, context);
+    if (analytics) {
+      firebaseLogEvent(analytics, 'error', {
+        error_message: error.message,
+        error_stack: error.stack?.substring(0, 100),
+        ...context
+      });
+    }
   } catch (err) {
-    console.error('Crashlytics logging error:', err);
+    console.error('Error logging failed:', err);
   }
 };
 
-// Log custom attributes for crash reports
+// Custom attributes (stored as event parameters in Web SDK)
 export const setCustomAttribute = (key, value) => {
-  try {
-    crashlytics().setAttribute(key, value);
-    console.log(`🏷️ Crashlytics Attribute: ${key} = ${value}`);
-  } catch (error) {
-    console.error('Crashlytics attribute error:', error);
-  }
+  console.log(`🏷️ Custom Attribute: ${key} = ${value}`);
+  // Web SDK doesn't have setAttribute, use event parameters instead
 };
 
-// Log breadcrumb
+// Breadcrumb (console logging in Web SDK)
 export const logBreadcrumb = (message) => {
-  try {
-    crashlytics().log(message);
-    console.log(`🍞 Breadcrumb: ${message}`);
-  } catch (error) {
-    console.error('Breadcrumb error:', error);
-  }
-};
-
-// Crash reporting enabled/disabled
-export const setCrashlyticsEnabled = async (enabled) => {
-  try {
-    await crashlytics().setCrashlyticsCollectionEnabled(enabled);
-    console.log(`🔥 Crashlytics ${enabled ? 'enabled' : 'disabled'}`);
-  } catch (error) {
-    console.error('Crashlytics toggle error:', error);
-  }
-};
-
-// Test crash (for testing only!)
-export const testCrash = () => {
-  crashlytics().crash();
+  console.log(`🍞 Breadcrumb: ${message}`);
 };
 
 // Pre-defined event loggers
@@ -105,17 +105,17 @@ export const AnalyticsEvents = {
   VIEW_DASHBOARD: () => logScreenView('Dashboard'),
   VIEW_MAP: () => logScreenView('Map'),
   VIEW_FORECAST: () => logScreenView('Forecast'),
-  VIEW_STATION_DETAIL: (stationId) => logEvent('view_station', { station_id: stationId }),
+  VIEW_STATION_DETAIL: (stationId) => logEvent('view_item', { item_id: stationId, item_name: 'station' }),
   
   // Data events
-  FETCH_WATER_DATA: (source) => logEvent('fetch_water_data', { source }),
-  FETCH_RAINFALL_DATA: (location) => logEvent('fetch_rainfall_data', { location }),
+  FETCH_WATER_DATA: (source) => logEvent('fetch_data', { data_type: 'water', source }),
+  FETCH_RAINFALL_DATA: (location) => logEvent('fetch_data', { data_type: 'rainfall', location }),
   VIEW_PREDICTION: (type) => logEvent('view_prediction', { prediction_type: type }),
   
   // User interaction
   SEARCH_STATION: (query) => logEvent('search', { search_term: query }),
   FILTER_DATA: (filterType) => logEvent('filter_data', { filter: filterType }),
-  SHARE_REPORT: (reportType) => logEvent('share', { content_type: reportType }),
+  SHARE_REPORT: (reportType) => logEvent('share', { content_type: reportType, method: 'share' }),
   
   // Settings
   CHANGE_THEME: (theme) => logEvent('change_theme', { theme }),
@@ -130,7 +130,5 @@ export default {
   logError,
   setCustomAttribute,
   logBreadcrumb,
-  setCrashlyticsEnabled,
-  testCrash,
   AnalyticsEvents
 };
