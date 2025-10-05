@@ -24,11 +24,29 @@
         "backgroundColor": "#FF9933"
       },
       "package": "com.aquaintel.app",
+      "versionCode": 1,
       "config": {
         "googleMaps": {
           "apiKey": "PLACEHOLDER_WILL_BE_REPLACED_AT_BUILD_TIME"
         }
-      }
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "INTERNET"
+      ],
+      "blockedPermissions": [
+        "READ_PHONE_STATE",
+        "READ_CONTACTS",
+        "READ_CALENDAR",
+        "WRITE_CALENDAR",
+        "READ_CALL_LOG",
+        "WRITE_CALL_LOG",
+        "READ_SMS",
+        "RECEIVE_SMS",
+        "SEND_SMS"
+      ],
+      "jsEngine": "hermes"
     },
     "web": {
       "favicon": "./assets/logo.png"
@@ -44,7 +62,24 @@
             "buildToolsVersion": "35.0.0",
             "usesCleartextTraffic": true,
             "enableProguardInReleaseBuilds": true,
-            "enableHermes": true
+            "enableHermes": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "extraProguardRules": "-keep class com.facebook.hermes.unicode.** { *; }\n-keep class com.facebook.jni.** { *; }\n-dontwarn com.facebook.react.**",
+            "useLegacyPackaging": false,
+            "networkInspector": false,
+            "packagingOptions": {
+              "pickFirst": [
+                "lib/arm64-v8a/libc++_shared.so"
+              ],
+              "exclude": [
+                "lib/x86/**",
+                "lib/x86_64/**",
+                "lib/armeabi-v7a/**",
+                "lib/armeabi/**",
+                "lib/mips/**",
+                "lib/mips64/**"
+              ]
+            }
           },
           "ios": {
             "deploymentTarget": "13.4"

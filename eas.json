@@ -10,19 +10,79 @@
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease"
+      },
+      "env": {
+        "NODE_ENV": "development"
       }
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease"
+        "gradleCommand": ":app:assembleRelease",
+        "image": "latest"
+      },
+      "cache": {
+        "disabled": true
+      }
+    },
+    "preview-no-cache": {
+      "extends": "preview",
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": "clean :app:assembleRelease",
+        "image": "latest"
+      },
+      "cache": {
+        "disabled": true
       }
     },
     "production": {
       "android": {
+        "buildType": "app-bundle",
+        "gradleCommand": ":app:bundleRelease",
+        "image": "latest"
+      },
+      "cache": {
+        "disabled": false,
+        "key": "production-cache-v2",
+        "paths": [
+          "node_modules"
+        ]
+      }
+    },
+    "production-no-cache": {
+      "extends": "production",
+      "android": {
+        "buildType": "app-bundle",
+        "gradleCommand": "clean :app:bundleRelease",
+        "image": "latest"
+      },
+      "cache": {
+        "disabled": true
+      }
+    },
+    "local-fast": {
+      "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease"
+        "gradleCommand": ":app:assembleRelease",
+        "withoutCredentials": true
+      },
+      "env": {
+        "SKIP_BUNDLING": "1"
+      }
+    },
+    "fast-build": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease",
+        "image": "latest",
+        "withoutCredentials": true
+      },
+      "cache": {
+        "disabled": true
       }
     }
   },
