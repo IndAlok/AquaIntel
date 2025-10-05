@@ -27,7 +27,7 @@
     "react": "18.2.0",
     "react-native": "^0.73.11",
     "react-native-gesture-handler": "~2.14.0",
-    "react-native-maps": "1.10.0",
+    "react-native-maps": "1.26.14",
     "react-native-paper": "^5.11.6",
     "react-native-reanimated": "~3.6.1",
     "react-native-safe-area-context": "4.8.2",
