@@ -17,11 +17,11 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
-        cache: 'npm'
+        node-version: '20'
+        cache: 'yarn'
     
     - name: Install dependencies
-      run: npm ci
+      run: yarn install
     
     - name: Run ESLint
       run: npm run lint --if-present
@@ -37,11 +37,11 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
-        cache: 'npm'
+        node-version: '20'
+        cache: 'yarn'
     
     - name: Install dependencies
-      run: npm ci
+      run: yarn install
     
     - name: Run tests
       run: npm test --if-present
@@ -58,20 +58,23 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '18'
-        cache: 'npm'
+        node-version: '20'
+        cache: 'yarn'
     
     - name: Install dependencies
-      run: npm ci
+      run: yarn install --frozen-lockfile
     
     - name: Setup Expo
       uses: expo/expo-github-action@v8
       with:
         expo-version: latest
+        expo-cache: true
+        eas-cache: true
+        packager: yarn
         token: ${{ secrets.EXPO_TOKEN }}
     
     - name: Check Expo configuration
-      run: npx expo-cli config --type public
+      run: npx expo config --type public
       continue-on-error: true
     
     - name: Build info
@@ -79,4 +82,4 @@ jobs:
         echo "Build completed successfully"
         echo "Platform: React Native with Expo"
         echo "Node version: $(node --version)"
-        echo "NPM version: $(npm --version)"
+        echo "Yarn version: $(yarn --version)"
