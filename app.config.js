@@ -39,7 +39,7 @@ module.exports = ({ config }) => {
           android: {
             compileSdkVersion: 34,
             targetSdkVersion: 34,
-            minSdkVersion: 23,
+            minSdkVersion: 24,  // CRITICAL: Must be 24 for Hermes hermestooling compatibility
             buildToolsVersion: "34.0.0",
             usesCleartextTraffic: true,
             enableProguardInReleaseBuilds: true,
