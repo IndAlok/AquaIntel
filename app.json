@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "AquaIntel",
+    "slug": "aquaintel",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logo.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FF9933"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.aquaintel.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#FF9933"
+      },
+      "package": "com.aquaintel.app"
+    },
+    "web": {
+      "favicon": "./assets/logo.png"
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "minSdkVersion": 23,
+            "buildToolsVersion": "34.0.0",
+            "usesCleartextTraffic": true,
+            "enableProguardInReleaseBuilds": true,
+            "enableHermes": true
+          },
+          "ios": {
+            "deploymentTarget": "13.4"
+          }
+        }
+      ]
+    ]
+  }
+}
