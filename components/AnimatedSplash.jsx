@@ -2,10 +2,10 @@
 // Animated splash screen with logo entrance and smooth transitions
 
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, Dimensions, Image } from 'react-native';
+import { View, StyleSheet, Animated, Dimensions } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
 
@@ -47,20 +47,19 @@ const AnimatedSplash = ({ onFinish }) => {
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [fadeAnim, scaleAnim, slideAnim, onFinish]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Gradient overlay */}
-      <LinearGradient
-        colors={
-          theme.dark
-            ? ['#0F4C81', '#1565C0', '#1976D2']
-            : ['#E3F2FD', '#BBDEFB', '#90CAF9']
-        }
-        style={styles.gradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      {/* Gradient overlay - simple colored view */}
+      <View
+        style={[
+          styles.gradient,
+          {
+            backgroundColor: theme.dark ? '#1565C0' : '#90CAF9',
+            opacity: 0.1,
+          },
+        ]}
       />
 
       {/* Animated logo */}
@@ -74,10 +73,10 @@ const AnimatedSplash = ({ onFinish }) => {
         ]}
       >
         <Animatable.View animation="pulse" iterationCount="infinite" duration={2000}>
-          <Image
-            source={require('../assets/logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
+          <MaterialCommunityIcons 
+            name="water" 
+            size={120} 
+            color={theme.colors.primary}
           />
         </Animatable.View>
       </Animated.View>
@@ -176,10 +175,6 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     marginBottom: 40,
-  },
-  logo: {
-    width: 150,
-    height: 150,
   },
   textContainer: {
     alignItems: 'center',

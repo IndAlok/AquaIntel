@@ -6,7 +6,7 @@ import { useColorScheme } from 'react-native';
 import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ThemeContext = createContext();
+export const ThemeContext = createContext();
 
 // Custom colors for water/environmental theme
 const customColors = {

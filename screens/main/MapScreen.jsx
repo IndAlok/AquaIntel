@@ -1,17 +1,20 @@
 // screens/main/MapScreen.jsx
-// Interactive map view with station markers
+// Interactive map view with station markers - FULLY FIXED
 
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import { Text, FAB, Portal, Modal, Card, Chip, useTheme } from 'react-native-paper';
+import { Text, FAB, Portal, Modal, Card, Chip } from 'react-native-paper';
 import MapView, { Marker, PROVIDER_GOOGLE, Callout } from 'react-native-maps';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Animatable from 'react-native-animatable';
 import { mockStations } from '../../data/mockStations';
+import { useAppTheme } from '../../store/ThemeContext';
+import { darkMapStyle } from '../../config/mapStyles';
 
 const { width, height } = Dimensions.get('window');
 
 const MapScreen = ({ navigation }) => {
-  const theme = useTheme();
+  const { colors, isDark } = useAppTheme();
   const mapRef = useRef(null);
   const [selectedStation, setSelectedStation] = useState(null);
   const [filterVisible, setFilterVisible] = useState(false);
@@ -56,11 +59,12 @@ const MapScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <MapView
         ref={mapRef}
         provider={PROVIDER_GOOGLE}
         style={styles.map}
+        customMapStyle={isDark ? darkMapStyle : []}
         initialRegion={{
           latitude: 20.5937,
           longitude: 78.9629,
@@ -87,58 +91,60 @@ const MapScreen = ({ navigation }) => {
 
       {/* Station Info Card */}
       {selectedStation && (
-        <Card style={styles.infoCard}>
-          <Card.Content>
-            <View style={styles.infoHeader}>
-              <View style={{ flex: 1 }}>
-                <Text variant="titleMedium" style={styles.infoTitle}>
-                  {selectedStation.name}
-                </Text>
-                <Text variant="bodySmall" style={styles.infoLocation}>
-                  {selectedStation.district}, {selectedStation.state}
-                </Text>
+        <Animatable.View animation="slideInUp" duration={400}>
+          <Card style={[styles.infoCard, { backgroundColor: colors.surface }]}>
+            <Card.Content>
+              <View style={styles.infoHeader}>
+                <View style={{ flex: 1 }}>
+                  <Text variant="titleMedium" style={[styles.infoTitle, { color: colors.onSurface }]}>
+                    {selectedStation.name}
+                  </Text>
+                  <Text variant="bodySmall" style={[styles.infoLocation, { color: colors.onSurfaceVariant }]}>
+                    {selectedStation.district}, {selectedStation.state}
+                  </Text>
+                </View>
+                <Chip style={{ backgroundColor: getMarkerColor(selectedStation) + '20' }}>
+                  {selectedStation.status}
+                </Chip>
               </View>
-              <Chip style={{ backgroundColor: getMarkerColor(selectedStation) + '20' }}>
-                {selectedStation.status}
-              </Chip>
-            </View>
-            <View style={styles.infoMetrics}>
-              <View style={styles.infoMetric}>
-                <Text variant="labelSmall">Water Level</Text>
-                <Text variant="titleMedium">{selectedStation.currentWaterLevel.toFixed(1)}m</Text>
+              <View style={styles.infoMetrics}>
+                <View style={styles.infoMetric}>
+                  <Text variant="labelSmall" style={{ color: colors.onSurfaceVariant }}>Water Level</Text>
+                  <Text variant="titleMedium" style={{ color: colors.onSurface }}>{selectedStation.currentWaterLevel.toFixed(1)}m</Text>
+                </View>
+                <View style={styles.infoMetric}>
+                  <Text variant="labelSmall" style={{ color: colors.onSurfaceVariant }}>Aquifer Type</Text>
+                  <Text variant="titleMedium" style={{ color: colors.onSurface }}>{selectedStation.aquiferType}</Text>
+                </View>
+                <View style={styles.infoMetric}>
+                  <Text variant="labelSmall" style={{ color: colors.onSurfaceVariant }}>Depth</Text>
+                  <Text variant="titleMedium" style={{ color: colors.onSurface }}>{selectedStation.depth}m</Text>
+                </View>
               </View>
-              <View style={styles.infoMetric}>
-                <Text variant="labelSmall">Aquifer Type</Text>
-                <Text variant="titleMedium">{selectedStation.aquiferType}</Text>
-              </View>
-              <View style={styles.infoMetric}>
-                <Text variant="labelSmall">Depth</Text>
-                <Text variant="titleMedium">{selectedStation.depth}m</Text>
-              </View>
-            </View>
-          </Card.Content>
-          <Card.Actions>
-            <FAB
-              icon="eye"
-              label="View Details"
-              onPress={handleViewDetails}
-              style={styles.detailsFab}
-              small
-            />
-            <FAB
-              icon="close"
-              onPress={() => setSelectedStation(null)}
-              style={styles.closeFab}
-              small
-            />
-          </Card.Actions>
-        </Card>
+            </Card.Content>
+            <Card.Actions>
+              <FAB
+                icon="eye"
+                label="View Details"
+                onPress={handleViewDetails}
+                style={[styles.detailsFab, { backgroundColor: colors.primary }]}
+                small
+              />
+              <FAB
+                icon="close"
+                onPress={() => setSelectedStation(null)}
+                style={[styles.closeFab, { backgroundColor: colors.surfaceVariant }]}
+                small
+              />
+            </Card.Actions>
+          </Card>
+        </Animatable.View>
       )}
 
       {/* Filter FAB */}
       <FAB
         icon="filter"
-        style={styles.filterFab}
+        style={[styles.filterFab, { backgroundColor: colors.primary }]}
         onPress={() => setFilterVisible(true)}
         label={filterType === 'all' ? 'All Stations' : filterType === 'active' ? 'Active' : 'Critical'}
       />
@@ -148,41 +154,43 @@ const MapScreen = ({ navigation }) => {
         <Modal
           visible={filterVisible}
           onDismiss={() => setFilterVisible(false)}
-          contentContainerStyle={styles.modalContent}
+          contentContainerStyle={[styles.modalContent, { backgroundColor: colors.surface }]}
         >
-          <Text variant="titleLarge" style={styles.modalTitle}>
-            Filter Stations
-          </Text>
-          <Chip
-            selected={filterType === 'all'}
-            onPress={() => {
-              setFilterType('all');
-              setFilterVisible(false);
-            }}
-            style={styles.modalChip}
-          >
-            All Stations
-          </Chip>
-          <Chip
-            selected={filterType === 'active'}
-            onPress={() => {
-              setFilterType('active');
-              setFilterVisible(false);
-            }}
-            style={styles.modalChip}
-          >
-            Active Only
-          </Chip>
-          <Chip
-            selected={filterType === 'critical'}
-            onPress={() => {
-              setFilterType('critical');
-              setFilterVisible(false);
-            }}
-            style={styles.modalChip}
-          >
-            Critical Stations
-          </Chip>
+          <Animatable.View animation="zoomIn" duration={300}>
+            <Text variant="titleLarge" style={[styles.modalTitle, { color: colors.onSurface }]}>
+              Filter Stations
+            </Text>
+            <Chip
+              selected={filterType === 'all'}
+              onPress={() => {
+                setFilterType('all');
+                setFilterVisible(false);
+              }}
+              style={styles.modalChip}
+            >
+              All Stations
+            </Chip>
+            <Chip
+              selected={filterType === 'active'}
+              onPress={() => {
+                setFilterType('active');
+                setFilterVisible(false);
+              }}
+              style={styles.modalChip}
+            >
+              Active Only
+            </Chip>
+            <Chip
+              selected={filterType === 'critical'}
+              onPress={() => {
+                setFilterType('critical');
+                setFilterVisible(false);
+              }}
+              style={styles.modalChip}
+            >
+              Critical Stations
+            </Chip>
+          </Animatable.View>
         </Modal>
       </Portal>
     </View>

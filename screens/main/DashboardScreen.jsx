@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Dimensions } from 'react-native';
 import { Text, Searchbar, Chip, FAB, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Animatable from 'react-native-animatable';
 import DataCard from '../../components/DataCard';
 import { mockStations, getActiveStations, getCriticalStations } from '../../data/mockStations';
 import { getMonsoonStatus } from '../../data/mockRainfallData';
@@ -109,41 +110,49 @@ const DashboardScreen = ({ navigation }) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />
         }
       >
-        {/* Header Stats */}
-        <View style={styles.metricsContainer}>
+        {/* Header Stats with animations */}
+        <Animatable.View animation="fadeInDown" duration={600} style={styles.metricsContainer}>
           <View style={styles.metricsRow}>
-            <DataCard
-              title="Total Stations"
-              value={metrics.total || 0}
-              icon="access-point"
-              iconColor={colors.primary}
-            />
-            <DataCard
-              title="Active"
-              value={metrics.active || 0}
-              icon="check-circle"
-              iconColor="#388E3C"
-            />
+            <Animatable.View animation="zoomIn" delay={100} duration={500} style={{ flex: 1 }}>
+              <DataCard
+                title="Total Stations"
+                value={metrics.total || 0}
+                icon="access-point"
+                iconColor={colors.primary}
+              />
+            </Animatable.View>
+            <Animatable.View animation="zoomIn" delay={150} duration={500} style={{ flex: 1 }}>
+              <DataCard
+                title="Active"
+                value={metrics.active || 0}
+                icon="check-circle"
+                iconColor="#388E3C"
+              />
+            </Animatable.View>
           </View>
           <View style={styles.metricsRow}>
-            <DataCard
-              title="Critical"
-              value={metrics.critical || 0}
-              icon="alert"
-              iconColor="#D32F2F"
-              subtitle="Needs attention"
-            />
-            <DataCard
-              title="Inactive"
-              value={metrics.inactive || 0}
-              icon="close-circle"
-              iconColor="#999"
-            />
+            <Animatable.View animation="zoomIn" delay={200} duration={500} style={{ flex: 1 }}>
+              <DataCard
+                title="Critical"
+                value={metrics.critical || 0}
+                icon="alert"
+                iconColor="#D32F2F"
+                subtitle="Needs attention"
+              />
+            </Animatable.View>
+            <Animatable.View animation="zoomIn" delay={250} duration={500} style={{ flex: 1 }}>
+              <DataCard
+                title="Inactive"
+                value={metrics.inactive || 0}
+                icon="close-circle"
+                iconColor="#999"
+              />
+            </Animatable.View>
           </View>
-        </View>
+        </Animatable.View>
 
-        {/* Monsoon Status Card */}
-        {metrics.monsoon && (
+        {/* Monsoon Status with animation */}
+        <Animatable.View animation="fadeInUp" delay={300} duration={600}>
           <Card style={dynamicStyles.monsoonCard}>
             <Card.Content>
               <View style={styles.monsoonHeader}>
@@ -162,116 +171,120 @@ const DashboardScreen = ({ navigation }) => {
               </View>
             </Card.Content>
           </Card>
-        )}
+        </Animatable.View>
 
         {/* Search and Filters */}
-        <View style={styles.searchContainer}>
-          <Searchbar
-            placeholder="Search stations, districts..."
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-            style={[styles.searchBar, { backgroundColor: colors.surface }]}
-            iconColor={colors.onSurfaceVariant}
-            inputStyle={{ color: colors.onSurface }}
-            placeholderTextColor={colors.onSurfaceVariant}
-          />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
-            <Chip
-              selected={selectedFilter === 'all'}
-              onPress={() => setSelectedFilter('all')}
-              style={styles.filterChip}
-              selectedColor={colors.primary}
-            >
-              All
-            </Chip>
-            <Chip
-              selected={selectedFilter === 'active'}
-              onPress={() => setSelectedFilter('active')}
-              style={styles.filterChip}
-              selectedColor={colors.primary}
-            >
-              Active
-            </Chip>
-            <Chip
-              selected={selectedFilter === 'critical'}
-              onPress={() => setSelectedFilter('critical')}
-              style={styles.filterChip}
-              selectedColor={colors.primary}
-            >
-              Critical
-            </Chip>
-            <Chip
-              selected={selectedFilter === 'inactive'}
-              onPress={() => setSelectedFilter('inactive')}
-              style={styles.filterChip}
-              selectedColor={colors.primary}
-            >
-              Inactive
-            </Chip>
-          </ScrollView>
-        </View>
-
-        {/* Stations List */}
-        <View style={styles.stationsContainer}>
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-            Stations ({getFilteredStations().length})
-          </Text>
-          {getFilteredStations().map((station) => {
-            const risk = getRiskLevel(station);
-            return (
-              <TouchableOpacity
-                key={station.id}
-                onPress={() => navigation.navigate('StationDetail', { stationId: station.id })}
-                activeOpacity={0.7}
+        <Animatable.View animation="fadeIn" delay={400} duration={600}>
+          <View style={styles.searchContainer}>
+            <Searchbar
+              placeholder="Search stations, districts..."
+              onChangeText={setSearchQuery}
+              value={searchQuery}
+              style={[styles.searchBar, { backgroundColor: colors.surface }]}
+              iconColor={colors.onSurfaceVariant}
+              inputStyle={{ color: colors.onSurface }}
+              placeholderTextColor={colors.onSurfaceVariant}
+            />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
+              <Chip
+                selected={selectedFilter === 'all'}
+                onPress={() => setSelectedFilter('all')}
+                style={styles.filterChip}
+                selectedColor={colors.primary}
               >
-                <Card style={dynamicStyles.stationCard}>
-                  <Card.Content>
-                    <View style={styles.stationHeader}>
-                      <View style={{ flex: 1 }}>
-                        <Text variant="titleMedium" style={[styles.stationName, { color: colors.onSurface }]}>
-                          {station.name}
-                        </Text>
-                        <Text variant="bodySmall" style={[styles.stationLocation, { color: colors.onSurfaceVariant }]}>
-                          {station.district}, {station.state}
-                        </Text>
+                All
+              </Chip>
+              <Chip
+                selected={selectedFilter === 'active'}
+                onPress={() => setSelectedFilter('active')}
+                style={styles.filterChip}
+                selectedColor={colors.primary}
+              >
+                Active
+              </Chip>
+              <Chip
+                selected={selectedFilter === 'critical'}
+                onPress={() => setSelectedFilter('critical')}
+                style={styles.filterChip}
+                selectedColor={colors.primary}
+              >
+                Critical
+              </Chip>
+              <Chip
+                selected={selectedFilter === 'inactive'}
+                onPress={() => setSelectedFilter('inactive')}
+                style={styles.filterChip}
+                selectedColor={colors.primary}
+              >
+                Inactive
+              </Chip>
+            </ScrollView>
+          </View>
+        </Animatable.View>
+
+        {/* Station List */}
+        <Animatable.View animation="fadeInUp" delay={500} duration={600}>
+          <View style={styles.stationsContainer}>
+            <Text variant="titleLarge" style={[styles.sectionTitle, { color: colors.onSurface }]}>
+              Stations ({getFilteredStations().length})
+            </Text>
+            {getFilteredStations().map((station) => {
+              const risk = getRiskLevel(station);
+              return (
+                <TouchableOpacity
+                  key={station.id}
+                  onPress={() => navigation.navigate('StationDetail', { stationId: station.id })}
+                  activeOpacity={0.7}
+                >
+                  <Card style={dynamicStyles.stationCard}>
+                    <Card.Content>
+                      <View style={styles.stationHeader}>
+                        <View style={{ flex: 1 }}>
+                          <Text variant="titleMedium" style={[styles.stationName, { color: colors.onSurface }]}>
+                            {station.name}
+                          </Text>
+                          <Text variant="bodySmall" style={[styles.stationLocation, { color: colors.onSurfaceVariant }]}>
+                            {station.district}, {station.state}
+                          </Text>
+                        </View>
+                        <Chip
+                          style={[styles.statusChip, { backgroundColor: getStatusColor(station.status) + '20' }]}
+                          textStyle={{ color: getStatusColor(station.status), fontSize: 12 }}
+                        >
+                          {station.status}
+                        </Chip>
                       </View>
-                      <Chip
-                        style={[styles.statusChip, { backgroundColor: getStatusColor(station.status) + '20' }]}
-                        textStyle={{ color: getStatusColor(station.status), fontSize: 12 }}
-                      >
-                        {station.status}
-                      </Chip>
-                    </View>
-                    <View style={styles.stationMetrics}>
-                      <View style={styles.metric}>
-                        <MaterialCommunityIcons name="water" size={20} color={colors.primary} />
-                        <Text variant="bodySmall" style={[styles.metricText, { color: colors.onSurface }]}>
-                          {station.currentWaterLevel.toFixed(1)}m
-                        </Text>
+                      <View style={styles.stationMetrics}>
+                        <View style={styles.metric}>
+                          <MaterialCommunityIcons name="water" size={20} color={colors.primary} />
+                          <Text variant="bodySmall" style={[styles.metricText, { color: colors.onSurface }]}>
+                            {station.currentWaterLevel.toFixed(1)}m
+                          </Text>
+                        </View>
+                        <View style={styles.metric}>
+                          <MaterialCommunityIcons name="layers-triple" size={20} color={colors.onSurfaceVariant} />
+                          <Text variant="bodySmall" style={[styles.metricText, { color: colors.onSurface }]} numberOfLines={1}>
+                            {station.aquiferType}
+                          </Text>
+                        </View>
+                        <View style={styles.metric}>
+                          <MaterialCommunityIcons 
+                            name={risk.level === 'Critical' ? 'alert-circle' : risk.level === 'Warning' ? 'alert' : 'check-circle'} 
+                            size={20} 
+                            color={risk.color} 
+                          />
+                          <Text variant="bodySmall" style={[styles.metricText, { color: risk.color }]}>
+                            {risk.level}
+                          </Text>
+                        </View>
                       </View>
-                      <View style={styles.metric}>
-                        <MaterialCommunityIcons name="layers-triple" size={20} color={colors.onSurfaceVariant} />
-                        <Text variant="bodySmall" style={[styles.metricText, { color: colors.onSurface }]} numberOfLines={1}>
-                          {station.aquiferType}
-                        </Text>
-                      </View>
-                      <View style={styles.metric}>
-                        <MaterialCommunityIcons 
-                          name={risk.level === 'Critical' ? 'alert-circle' : risk.level === 'Warning' ? 'alert' : 'check-circle'} 
-                          size={20} 
-                          color={risk.color} 
-                        />
-                        <Text variant="bodySmall" style={[styles.metricText, { color: risk.color }]}>
-                          {risk.level}
-                        </Text>
-                      </View>
-                    </View>
-                  </Card.Content>
-                </Card>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+                    </Card.Content>
+                  </Card>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </Animatable.View>
       </ScrollView>
 
       <FAB

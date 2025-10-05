@@ -47,6 +47,9 @@ const DrawerNavigator = () => {
         drawerInactiveTintColor: theme.colors.onSurfaceVariant,
         drawerActiveBackgroundColor: theme.colors.primaryContainer,
         overlayColor: theme.dark ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)',
+        // Remove useLegacyImplementation - not supported in Reanimated 3
+        swipeEnabled: true,
+        swipeEdgeWidth: 50,
       }}
     >
       {/* Main screens */}
