@@ -46,7 +46,7 @@ module.exports = ({ config }) => {
             enableHermes: true
           },
           ios: {
-            deploymentTarget: "13.4"
+            deploymentTarget: "15.1"
           }
         }
       ],

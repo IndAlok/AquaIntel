@@ -8,46 +8,44 @@ import { getStorage } from 'firebase/storage';
 import Constants from 'expo-constants';
 
 // Firebase configuration from environment variables
-// In development: uses process.env
-// In production/builds: uses Constants.expoConfig.extra
-const getEnvVar = (key) => {
-  // Try expo-constants first (works in builds)
-  if (Constants.expoConfig?.extra?.[key]) {
-    return Constants.expoConfig.extra[key];
-  }
-  // Fallback to process.env (works in development)
-  return process.env[`EXPO_PUBLIC_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`];
-};
+// Priority: 1. Constants.expoConfig.extra (works in builds)
+//          2. process.env (works in development)
 
 const firebaseConfig = {
-  apiKey: getEnvVar('firebaseApiKey'),
-  authDomain: getEnvVar('firebaseAuthDomain'),
-  projectId: getEnvVar('firebaseProjectId'),
-  storageBucket: getEnvVar('firebaseStorageBucket'),
-  messagingSenderId: getEnvVar('firebaseMessagingSenderId'),
-  appId: getEnvVar('firebaseAppId')
+  apiKey: Constants.expoConfig?.extra?.firebaseApiKey || process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: Constants.expoConfig?.extra?.firebaseAuthDomain || process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: Constants.expoConfig?.extra?.firebaseProjectId || process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: Constants.expoConfig?.extra?.firebaseStorageBucket || process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: Constants.expoConfig?.extra?.firebaseMessagingSenderId || process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: Constants.expoConfig?.extra?.firebaseAppId || process.env.EXPO_PUBLIC_FIREBASE_APP_ID
 };
 
 // Validate Firebase configuration
 const validateConfig = () => {
+  console.log('🔍 Debugging Firebase Config:');
+  console.log('  Constants.expoConfig.extra:', Constants.expoConfig?.extra ? 'EXISTS' : 'MISSING');
+  console.log('  firebaseApiKey from extra:', Constants.expoConfig?.extra?.firebaseApiKey);
+  console.log('  firebaseApiKey from process.env:', process.env.EXPO_PUBLIC_FIREBASE_API_KEY);
+  console.log('  Final firebaseConfig:', {
+    apiKey: firebaseConfig.apiKey ? '***' + firebaseConfig.apiKey.slice(-4) : 'MISSING',
+    authDomain: firebaseConfig.authDomain || 'MISSING',
+    projectId: firebaseConfig.projectId || 'MISSING'
+  });
+  
   const requiredKeys = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
   const missingKeys = requiredKeys.filter(key => !firebaseConfig[key]);
   
   if (missingKeys.length > 0) {
     console.error('❌ FIREBASE CONFIGURATION ERROR');
-    console.error('Missing required environment variables:');
-    missingKeys.forEach(key => {
-      const envVarName = `EXPO_PUBLIC_FIREBASE_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`;
-      const value = process.env[envVarName];
-      console.error(`  - ${envVarName}: ${value ? 'SET' : 'MISSING/EMPTY'}`);
-    });
+    console.error('Missing configuration fields:', missingKeys);
     console.error('\n📝 IMPORTANT: Environment variables are bundled at BUILD TIME!');
     console.error('📦 If you updated .env after building, you must REBUILD the app.');
     console.error('🔧 Run: npx eas build -p android --profile preview');
-    console.error('📖 See FIREBASE_SETUP.md for detailed instructions.\n');
     
     throw new Error('Firebase configuration incomplete. Rebuild the app after updating .env file.');
   }
+  
+  console.log('✅ Firebase config validation passed');
 };
 
 // Validate before initializing
