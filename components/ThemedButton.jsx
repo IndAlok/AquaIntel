@@ -1,9 +1,10 @@
 // components/ThemedButton.jsx
-// Custom themed button component
+// Custom themed button component with proper layout
 
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
+import { useAppTheme } from '../store/ThemeContext';
 
 const ThemedButton = ({ 
   children, 
@@ -15,6 +16,8 @@ const ThemedButton = ({
   onPress,
   ...props 
 }) => {
+  const { colors } = useAppTheme();
+
   return (
     <Button
       mode={mode}
@@ -38,11 +41,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   content: {
-    paddingVertical: 6,
+    minHeight: 48,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
   label: {
     fontSize: 16,
     fontWeight: '600',
+    lineHeight: 20,
   },
 });
 

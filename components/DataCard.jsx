@@ -3,8 +3,9 @@
 
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Card, Text, useTheme } from 'react-native-paper';
+import { Card, Text } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useAppTheme } from '../store/ThemeContext';
 
 const DataCard = ({ 
   title, 
@@ -16,13 +17,13 @@ const DataCard = ({
   subtitle,
   onPress 
 }) => {
-  const theme = useTheme();
+  const { colors } = useAppTheme();
 
   const getTrendColor = () => {
-    if (!trend) return theme.colors.onSurfaceVariant;
-    if (trend > 0) return theme.colors.success;
-    if (trend < 0) return theme.colors.error;
-    return theme.colors.onSurfaceVariant;
+    if (!trend) return colors.onSurfaceVariant;
+    if (trend > 0) return '#388E3C';
+    if (trend < 0) return '#D32F2F';
+    return colors.onSurfaceVariant;
   };
 
   const getTrendIcon = () => {
@@ -33,32 +34,36 @@ const DataCard = ({
   };
 
   return (
-    <Card style={styles.card} onPress={onPress}>
+    <Card style={[styles.card, { backgroundColor: colors.surface }]} onPress={onPress}>
       <Card.Content>
         <View style={styles.header}>
           {icon && (
             <MaterialCommunityIcons 
               name={icon} 
               size={24} 
-              color={iconColor || theme.colors.primary} 
+              color={iconColor || colors.primary} 
             />
           )}
-          <Text variant="labelLarge" style={styles.title}>{title}</Text>
+          <Text variant="labelLarge" style={[styles.title, { color: colors.onSurface }]} numberOfLines={2}>
+            {title}
+          </Text>
         </View>
         
         <View style={styles.valueContainer}>
-          <Text variant="headlineLarge" style={styles.value}>
-            {value}
+          <Text variant="headlineLarge" style={[styles.value, { color: colors.onSurface }]}>
+            {value !== undefined && value !== null ? value : '-'}
           </Text>
           {unit && (
-            <Text variant="titleMedium" style={styles.unit}>{unit}</Text>
+            <Text variant="titleMedium" style={[styles.unit, { color: colors.onSurfaceVariant }]}>{unit}</Text>
           )}
         </View>
 
         {(subtitle || trend !== undefined) && (
           <View style={styles.footer}>
             {subtitle && (
-              <Text variant="bodySmall" style={styles.subtitle}>{subtitle}</Text>
+              <Text variant="bodySmall" style={[styles.subtitle, { color: colors.onSurfaceVariant }]} numberOfLines={1}>
+                {subtitle}
+              </Text>
             )}
             {trend !== undefined && (
               <View style={styles.trendContainer}>
@@ -86,20 +91,24 @@ const styles = StyleSheet.create({
   card: {
     margin: 8,
     elevation: 2,
+    flex: 1,
+    minHeight: 120,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   title: {
     marginLeft: 8,
     flex: 1,
+    lineHeight: 18,
   },
   valueContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
     marginVertical: 8,
+    minHeight: 40,
   },
   value: {
     fontWeight: 'bold',
@@ -113,9 +122,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 8,
+    minHeight: 20,
   },
   subtitle: {
     opacity: 0.7,
+    flex: 1,
   },
   trendContainer: {
     flexDirection: 'row',

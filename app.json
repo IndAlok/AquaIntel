@@ -35,7 +35,7 @@
           "android": {
             "compileSdkVersion": 34,
             "targetSdkVersion": 34,
-            "minSdkVersion": 23,
+            "minSdkVersion": 24,
             "buildToolsVersion": "34.0.0",
             "usesCleartextTraffic": true,
             "enableProguardInReleaseBuilds": true,

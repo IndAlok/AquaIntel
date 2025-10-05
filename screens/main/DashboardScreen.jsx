@@ -1,16 +1,19 @@
 // screens/main/DashboardScreen.jsx
-// Main dashboard with overview metrics and station list
+// Main dashboard with overview metrics and station list - FULLY FIXED
 
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
-import { Text, useTheme, Searchbar, Chip, FAB, Card } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Dimensions } from 'react-native';
+import { Text, Searchbar, Chip, FAB, Card } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import DataCard from '../../components/DataCard';
 import { mockStations, getActiveStations, getCriticalStations } from '../../data/mockStations';
 import { getMonsoonStatus } from '../../data/mockRainfallData';
+import { useAppTheme } from '../../store/ThemeContext';
+
+const { width } = Dimensions.get('window');
 
 const DashboardScreen = ({ navigation }) => {
-  const theme = useTheme();
+  const { colors, isDark } = useAppTheme();
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -64,30 +67,46 @@ const DashboardScreen = ({ navigation }) => {
       );
     }
 
-    return filtered.slice(0, 50); // Limit to 50 for performance
+    return filtered.slice(0, 50);
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Active': return theme.colors.success;
-      case 'Inactive': return theme.colors.error;
+      case 'Active': return '#388E3C';
+      case 'Inactive': return '#D32F2F';
       case 'Maintenance': return '#FFA726';
-      default: return theme.colors.onSurfaceVariant;
+      default: return colors.onSurfaceVariant;
     }
   };
 
   const getRiskLevel = (station) => {
     const utilizationRate = (station.currentWaterLevel / station.depth) * 100;
-    if (utilizationRate > 80) return { level: 'Critical', color: theme.colors.error };
+    if (utilizationRate > 80) return { level: 'Critical', color: '#D32F2F' };
     if (utilizationRate > 60) return { level: 'Warning', color: '#FFA726' };
-    return { level: 'Safe', color: theme.colors.success };
+    return { level: 'Safe', color: '#388E3C' };
+  };
+
+  const dynamicStyles = {
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    monsoonCard: {
+      margin: 16,
+      marginTop: 0,
+      backgroundColor: colors.surface,
+    },
+    stationCard: {
+      marginBottom: 12,
+      backgroundColor: colors.surface,
+    },
   };
 
   return (
-    <View style={styles.container}>
+    <View style={dynamicStyles.container}>
       <ScrollView
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />
         }
       >
         {/* Header Stats */}
@@ -95,28 +114,28 @@ const DashboardScreen = ({ navigation }) => {
           <View style={styles.metricsRow}>
             <DataCard
               title="Total Stations"
-              value={metrics.total}
+              value={metrics.total || 0}
               icon="access-point"
-              iconColor={theme.colors.primary}
+              iconColor={colors.primary}
             />
             <DataCard
               title="Active"
-              value={metrics.active}
+              value={metrics.active || 0}
               icon="check-circle"
-              iconColor={theme.colors.success}
+              iconColor="#388E3C"
             />
           </View>
           <View style={styles.metricsRow}>
             <DataCard
               title="Critical"
-              value={metrics.critical}
+              value={metrics.critical || 0}
               icon="alert"
-              iconColor={theme.colors.error}
+              iconColor="#D32F2F"
               subtitle="Needs attention"
             />
             <DataCard
               title="Inactive"
-              value={metrics.inactive}
+              value={metrics.inactive || 0}
               icon="close-circle"
               iconColor="#999"
             />
@@ -125,19 +144,21 @@ const DashboardScreen = ({ navigation }) => {
 
         {/* Monsoon Status Card */}
         {metrics.monsoon && (
-          <Card style={styles.monsoonCard}>
+          <Card style={dynamicStyles.monsoonCard}>
             <Card.Content>
               <View style={styles.monsoonHeader}>
-                <MaterialCommunityIcons name="weather-rainy" size={32} color={theme.colors.primary} />
+                <MaterialCommunityIcons name="weather-rainy" size={32} color={colors.primary} />
                 <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Text variant="titleLarge" style={styles.monsoonTitle}>
+                  <Text variant="titleLarge" style={[styles.monsoonTitle, { color: colors.onSurface }]}>
                     {metrics.monsoon.phase}
                   </Text>
-                  <Text variant="bodyMedium" style={styles.monsoonStatus}>
+                  <Text variant="bodyMedium" style={[styles.monsoonStatus, { color: colors.onSurfaceVariant }]}>
                     Status: {metrics.monsoon.status.toUpperCase()}
                   </Text>
                 </View>
-                <Chip>{metrics.monsoon.currentIntensity}</Chip>
+                <Chip style={{ backgroundColor: colors.primaryContainer }}>
+                  {metrics.monsoon.currentIntensity}
+                </Chip>
               </View>
             </Card.Content>
           </Card>
@@ -149,13 +170,17 @@ const DashboardScreen = ({ navigation }) => {
             placeholder="Search stations, districts..."
             onChangeText={setSearchQuery}
             value={searchQuery}
-            style={styles.searchBar}
+            style={[styles.searchBar, { backgroundColor: colors.surface }]}
+            iconColor={colors.onSurfaceVariant}
+            inputStyle={{ color: colors.onSurface }}
+            placeholderTextColor={colors.onSurfaceVariant}
           />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll}>
             <Chip
               selected={selectedFilter === 'all'}
               onPress={() => setSelectedFilter('all')}
               style={styles.filterChip}
+              selectedColor={colors.primary}
             >
               All
             </Chip>
@@ -163,6 +188,7 @@ const DashboardScreen = ({ navigation }) => {
               selected={selectedFilter === 'active'}
               onPress={() => setSelectedFilter('active')}
               style={styles.filterChip}
+              selectedColor={colors.primary}
             >
               Active
             </Chip>
@@ -170,6 +196,7 @@ const DashboardScreen = ({ navigation }) => {
               selected={selectedFilter === 'critical'}
               onPress={() => setSelectedFilter('critical')}
               style={styles.filterChip}
+              selectedColor={colors.primary}
             >
               Critical
             </Chip>
@@ -177,6 +204,7 @@ const DashboardScreen = ({ navigation }) => {
               selected={selectedFilter === 'inactive'}
               onPress={() => setSelectedFilter('inactive')}
               style={styles.filterChip}
+              selectedColor={colors.primary}
             >
               Inactive
             </Chip>
@@ -185,7 +213,7 @@ const DashboardScreen = ({ navigation }) => {
 
         {/* Stations List */}
         <View style={styles.stationsContainer}>
-          <Text variant="titleLarge" style={styles.sectionTitle}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: colors.onSurface }]}>
             Stations ({getFilteredStations().length})
           </Text>
           {getFilteredStations().map((station) => {
@@ -194,35 +222,36 @@ const DashboardScreen = ({ navigation }) => {
               <TouchableOpacity
                 key={station.id}
                 onPress={() => navigation.navigate('StationDetail', { stationId: station.id })}
+                activeOpacity={0.7}
               >
-                <Card style={styles.stationCard}>
+                <Card style={dynamicStyles.stationCard}>
                   <Card.Content>
                     <View style={styles.stationHeader}>
                       <View style={{ flex: 1 }}>
-                        <Text variant="titleMedium" style={styles.stationName}>
+                        <Text variant="titleMedium" style={[styles.stationName, { color: colors.onSurface }]}>
                           {station.name}
                         </Text>
-                        <Text variant="bodySmall" style={styles.stationLocation}>
+                        <Text variant="bodySmall" style={[styles.stationLocation, { color: colors.onSurfaceVariant }]}>
                           {station.district}, {station.state}
                         </Text>
                       </View>
                       <Chip
                         style={[styles.statusChip, { backgroundColor: getStatusColor(station.status) + '20' }]}
-                        textStyle={{ color: getStatusColor(station.status) }}
+                        textStyle={{ color: getStatusColor(station.status), fontSize: 12 }}
                       >
                         {station.status}
                       </Chip>
                     </View>
                     <View style={styles.stationMetrics}>
                       <View style={styles.metric}>
-                        <MaterialCommunityIcons name="water" size={20} color={theme.colors.primary} />
-                        <Text variant="bodySmall" style={styles.metricText}>
-                          {station.currentWaterLevel.toFixed(1)}m depth
+                        <MaterialCommunityIcons name="water" size={20} color={colors.primary} />
+                        <Text variant="bodySmall" style={[styles.metricText, { color: colors.onSurface }]}>
+                          {station.currentWaterLevel.toFixed(1)}m
                         </Text>
                       </View>
                       <View style={styles.metric}>
-                        <MaterialCommunityIcons name="layers-triple" size={20} color="#666" />
-                        <Text variant="bodySmall" style={styles.metricText}>
+                        <MaterialCommunityIcons name="layers-triple" size={20} color={colors.onSurfaceVariant} />
+                        <Text variant="bodySmall" style={[styles.metricText, { color: colors.onSurface }]} numberOfLines={1}>
                           {station.aquiferType}
                         </Text>
                       </View>
@@ -247,28 +276,22 @@ const DashboardScreen = ({ navigation }) => {
 
       <FAB
         icon="map"
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: colors.primary }]}
         onPress={() => navigation.navigate('Map')}
         label="Map View"
+        color="#FFFFFF"
       />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
   metricsContainer: {
     padding: 8,
   },
   metricsRow: {
     flexDirection: 'row',
-  },
-  monsoonCard: {
-    margin: 16,
-    marginTop: 0,
+    justifyContent: 'space-between',
   },
   monsoonHeader: {
     flexDirection: 'row',
@@ -286,12 +309,14 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     marginBottom: 12,
+    elevation: 2,
   },
   filterScroll: {
     marginTop: 8,
   },
   filterChip: {
     marginRight: 8,
+    height: 36,
   },
   stationsContainer: {
     padding: 16,
@@ -300,9 +325,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginBottom: 16,
     fontWeight: 'bold',
-  },
-  stationCard: {
-    marginBottom: 12,
   },
   stationHeader: {
     flexDirection: 'row',
@@ -319,17 +341,22 @@ const styles = StyleSheet.create({
   },
   statusChip: {
     height: 28,
+    marginLeft: 8,
   },
   stationMetrics: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 12,
   },
   metric: {
     flexDirection: 'row',
     alignItems: 'center',
+    minWidth: 80,
   },
   metricText: {
     marginLeft: 4,
+    fontSize: 12,
   },
   fab: {
     position: 'absolute',

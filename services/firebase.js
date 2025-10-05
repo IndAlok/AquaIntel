@@ -2,9 +2,10 @@
 // Firebase configuration and initialization for authentication and database
 
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
 // Firebase configuration from environment variables
@@ -54,12 +55,16 @@ validateConfig();
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase services
-export const auth = getAuth(app);
+// Initialize Firebase Auth with AsyncStorage persistence
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage)
+});
+
+// Initialize other Firebase services
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-console.log('✅ Firebase initialized successfully');
+console.log('✅ Firebase initialized successfully with AsyncStorage persistence');
 console.log('📊 Project ID:', firebaseConfig.projectId);
 
 export default app;

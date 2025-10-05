@@ -1,18 +1,19 @@
 // screens/main/ForecastScreen.jsx
-// Predictive analytics and forecasting screen
+// Predictive analytics and forecasting screen - FULLY FIXED
 
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import { Text, Card, useTheme, SegmentedButtons, Searchbar, List, Chip } from 'react-native-paper';
+import { Text, Card, SegmentedButtons, Searchbar, List, Chip } from 'react-native-paper';
 import { VictoryChart, VictoryLine, VictoryScatter, VictoryAxis, VictoryLegend, VictoryTheme, VictoryArea } from 'victory-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { mockStations } from '../../data/mockStations';
 import { getPredictions, getMonthlyPredictions } from '../../data/mockPredictions';
+import { useAppTheme } from '../../store/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 const ForecastScreen = () => {
-  const theme = useTheme();
+  const { colors, isDark } = useAppTheme();
   const [selectedStation, setSelectedStation] = useState(mockStations[0]);
   const [searchQuery, setSearchQuery] = useState('');
   const [predictions, setPredictions] = useState([]);
@@ -29,7 +30,6 @@ const ForecastScreen = () => {
     const predData = getPredictions(selectedStation.id);
     const monthlyData = getMonthlyPredictions(selectedStation.id);
     
-    // Filter based on time horizon
     let filtered = predData;
     if (timeHorizon === '30d') {
       filtered = predData.slice(0, 30);
@@ -51,7 +51,6 @@ const ForecastScreen = () => {
       .slice(0, 20);
   };
 
-  // Prepare chart data
   const chartData = predictions.map((pred, index) => ({
     x: index,
     y: pred.predictedLevel,
@@ -59,19 +58,41 @@ const ForecastScreen = () => {
     upper: pred.upperBound,
   }));
 
+  const dynamicStyles = {
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    card: {
+      margin: 16,
+      backgroundColor: colors.surface,
+    },
+    monthCard: {
+      marginBottom: 12,
+      backgroundColor: isDark ? colors.surfaceVariant : '#F9F9F9',
+    },
+    disclaimerCard: {
+      backgroundColor: isDark ? colors.surfaceVariant : '#FFF3E0',
+      marginBottom: 32,
+    },
+  };
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={dynamicStyles.container}>
       {/* Station Selector */}
-      <Card style={styles.card}>
+      <Card style={dynamicStyles.card}>
         <Card.Content>
-          <Text variant="titleMedium" style={styles.sectionTitle}>
+          <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
             Select Station
           </Text>
           <Searchbar
             placeholder="Search stations..."
             onChangeText={setSearchQuery}
             value={searchQuery}
-            style={styles.searchBar}
+            style={[styles.searchBar, { backgroundColor: colors.surfaceVariant }]}
+            iconColor={colors.onSurfaceVariant}
+            inputStyle={{ color: colors.onSurface }}
+            placeholderTextColor={colors.onSurfaceVariant}
           />
           <ScrollView style={styles.stationList} nestedScrollEnabled>
             {getFilteredStations().map((station) => (
@@ -79,16 +100,18 @@ const ForecastScreen = () => {
                 key={station.id}
                 title={station.name}
                 description={`${station.district}, ${station.state}`}
-                left={(props) => (
+                titleStyle={{ color: colors.onSurface }}
+                descriptionStyle={{ color: colors.onSurfaceVariant }}
+                left={() => (
                   <MaterialCommunityIcons
                     name="water"
                     size={24}
-                    color={selectedStation?.id === station.id ? theme.colors.primary : '#999'}
+                    color={selectedStation?.id === station.id ? colors.primary : colors.onSurfaceVariant}
                   />
                 )}
-                right={(props) =>
+                right={() =>
                   selectedStation?.id === station.id ? (
-                    <MaterialCommunityIcons name="check" size={24} color={theme.colors.primary} />
+                    <MaterialCommunityIcons name="check" size={24} color={colors.primary} />
                   ) : null
                 }
                 onPress={() => {
@@ -97,7 +120,7 @@ const ForecastScreen = () => {
                 }}
                 style={
                   selectedStation?.id === station.id
-                    ? { backgroundColor: theme.colors.primary + '10' }
+                    ? { backgroundColor: colors.primaryContainer }
                     : {}
                 }
               />
@@ -108,20 +131,20 @@ const ForecastScreen = () => {
 
       {/* Selected Station Info */}
       {selectedStation && (
-        <Card style={styles.card}>
+        <Card style={dynamicStyles.card}>
           <Card.Content>
             <View style={styles.stationHeader}>
               <View style={{ flex: 1 }}>
-                <Text variant="titleLarge" style={styles.stationName}>
+                <Text variant="titleLarge" style={[styles.stationName, { color: colors.onSurface }]}>
                   {selectedStation.name}
                 </Text>
-                <Text variant="bodyMedium" style={styles.stationLocation}>
+                <Text variant="bodyMedium" style={[styles.stationLocation, { color: colors.onSurfaceVariant }]}>
                   {selectedStation.district}, {selectedStation.state}
                 </Text>
               </View>
               <View style={styles.currentLevel}>
-                <Text variant="labelSmall">Current Level</Text>
-                <Text variant="headlineSmall" style={{ color: theme.colors.primary }}>
+                <Text variant="labelSmall" style={{ color: colors.onSurfaceVariant }}>Current Level</Text>
+                <Text variant="headlineSmall" style={{ color: colors.primary }}>
                   {selectedStation.currentWaterLevel.toFixed(1)}m
                 </Text>
               </View>
@@ -131,9 +154,9 @@ const ForecastScreen = () => {
       )}
 
       {/* Time Horizon Selector */}
-      <Card style={styles.card}>
+      <Card style={dynamicStyles.card}>
         <Card.Content>
-          <Text variant="titleMedium" style={styles.sectionTitle}>
+          <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
             Forecast Horizon
           </Text>
           <SegmentedButtons
@@ -144,29 +167,30 @@ const ForecastScreen = () => {
               { value: '90d', label: '90 Days' },
               { value: '180d', label: '6 Months' },
             ]}
+            style={{ backgroundColor: colors.surface }}
           />
         </Card.Content>
       </Card>
 
       {/* Prediction Chart */}
-      <Card style={styles.card}>
+      <Card style={dynamicStyles.card}>
         <Card.Content>
-          <Text variant="titleMedium" style={styles.chartTitle}>
+          <Text variant="titleMedium" style={[styles.chartTitle, { color: colors.onSurface }]}>
             Water Level Forecast
           </Text>
-          <Text variant="bodySmall" style={styles.chartSubtitle}>
+          <Text variant="bodySmall" style={[styles.chartSubtitle, { color: colors.onSurfaceVariant }]}>
             Shaded area represents confidence interval
           </Text>
           <VictoryChart
-            width={width - 64}
+            width={Math.min(width - 64, 600)}
             height={300}
             theme={VictoryTheme.material}
             padding={{ top: 20, bottom: 40, left: 50, right: 20 }}
           >
             <VictoryAxis
               style={{
-                axis: { stroke: theme.colors.outline },
-                tickLabels: { fill: theme.colors.onSurface, fontSize: 10 },
+                axis: { stroke: colors.outline },
+                tickLabels: { fill: colors.onSurface, fontSize: 10 },
               }}
               tickFormat={(t) => {
                 const daysPerTick = Math.ceil(predictions.length / 6);
@@ -179,33 +203,30 @@ const ForecastScreen = () => {
             <VictoryAxis
               dependentAxis
               style={{
-                axis: { stroke: theme.colors.outline },
-                tickLabels: { fill: theme.colors.onSurface, fontSize: 10 },
-                grid: { stroke: theme.colors.surfaceVariant, strokeDasharray: '4,4' },
+                axis: { stroke: colors.outline },
+                tickLabels: { fill: colors.onSurface, fontSize: 10 },
+                grid: { stroke: colors.surfaceVariant, strokeDasharray: '4,4' },
               }}
               label="Water Level (m)"
             />
-            {/* Confidence interval */}
             <VictoryArea
               data={chartData}
               y={(d) => d.upper}
               y0={(d) => d.lower}
               style={{
                 data: {
-                  fill: theme.colors.primary,
+                  fill: colors.primary,
                   fillOpacity: 0.2,
                 },
               }}
             />
-            {/* Prediction line */}
             <VictoryLine
               data={chartData}
               style={{
-                data: { stroke: theme.colors.primary, strokeWidth: 2 },
+                data: { stroke: colors.primary, strokeWidth: 2 },
               }}
               interpolation="natural"
             />
-            {/* Current point */}
             <VictoryScatter
               data={[{ x: 0, y: selectedStation.currentWaterLevel }]}
               size={6}
@@ -216,23 +237,23 @@ const ForecastScreen = () => {
       </Card>
 
       {/* Monthly Predictions Summary */}
-      <Card style={styles.card}>
+      <Card style={dynamicStyles.card}>
         <Card.Content>
-          <Text variant="titleMedium" style={styles.sectionTitle}>
+          <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
             Monthly Forecast Summary
           </Text>
           {monthlyPredictions.map((pred, index) => (
-            <Card key={index} style={styles.monthCard}>
+            <Card key={index} style={dynamicStyles.monthCard}>
               <Card.Content>
                 <View style={styles.monthHeader}>
                   <View style={{ flex: 1 }}>
-                    <Text variant="labelSmall">
+                    <Text variant="labelSmall" style={{ color: colors.onSurfaceVariant }}>
                       {new Date(pred.month).toLocaleDateString('en-US', {
                         month: 'long',
                         year: 'numeric',
                       })}
                     </Text>
-                    <Text variant="headlineSmall" style={{ color: theme.colors.primary }}>
+                    <Text variant="headlineSmall" style={{ color: colors.primary }}>
                       {pred.avgPredictedLevel.toFixed(1)}m
                     </Text>
                   </View>
@@ -242,7 +263,7 @@ const ForecastScreen = () => {
                       size={32}
                       color={pred.trend === 'declining' ? '#F44336' : '#4CAF50'}
                     />
-                    <Text variant="bodySmall" style={styles.trendText}>
+                    <Text variant="bodySmall" style={[styles.trendText, { color: colors.onSurfaceVariant }]}>
                       {pred.trend}
                     </Text>
                   </View>
@@ -274,44 +295,52 @@ const ForecastScreen = () => {
       </Card>
 
       {/* Methodology */}
-      <Card style={styles.card}>
+      <Card style={dynamicStyles.card}>
         <Card.Content>
           <View style={styles.methodologyHeader}>
-            <MaterialCommunityIcons name="brain" size={24} color={theme.colors.primary} />
-            <Text variant="titleMedium" style={styles.methodologyTitle}>
+            <MaterialCommunityIcons name="brain" size={24} color={colors.primary} />
+            <Text variant="titleMedium" style={[styles.methodologyTitle, { color: colors.onSurface }]}>
               Prediction Methodology
             </Text>
           </View>
-          <Text variant="bodyMedium" style={styles.methodologyText}>
+          <Text variant="bodyMedium" style={[styles.methodologyText, { color: colors.onSurface }]}>
             Our AI-powered forecasting model uses:
           </Text>
           <List.Item
             title="Historical Trends"
             description="2+ years of water level data"
-            left={(props) => <MaterialCommunityIcons name="chart-timeline-variant" size={24} />}
+            titleStyle={{ color: colors.onSurface }}
+            descriptionStyle={{ color: colors.onSurfaceVariant }}
+            left={() => <MaterialCommunityIcons name="chart-timeline-variant" size={24} color={colors.primary} />}
           />
           <List.Item
             title="Seasonal Patterns"
             description="Monsoon and drought cycles"
-            left={(props) => <MaterialCommunityIcons name="weather-rainy" size={24} />}
+            titleStyle={{ color: colors.onSurface }}
+            descriptionStyle={{ color: colors.onSurfaceVariant }}
+            left={() => <MaterialCommunityIcons name="weather-rainy" size={24} color={colors.primary} />}
           />
           <List.Item
             title="Rainfall Correlation"
             description="Local precipitation data"
-            left={(props) => <MaterialCommunityIcons name="water" size={24} />}
+            titleStyle={{ color: colors.onSurface }}
+            descriptionStyle={{ color: colors.onSurfaceVariant }}
+            left={() => <MaterialCommunityIcons name="water" size={24} color={colors.primary} />}
           />
           <List.Item
             title="Machine Learning"
             description="Neural network predictions"
-            left={(props) => <MaterialCommuniconsIcons name="brain" size={24} />}
+            titleStyle={{ color: colors.onSurface }}
+            descriptionStyle={{ color: colors.onSurfaceVariant }}
+            left={() => <MaterialCommunityIcons name="brain" size={24} color={colors.primary} />}
           />
         </Card.Content>
       </Card>
 
       {/* Disclaimer */}
-      <Card style={[styles.card, styles.disclaimerCard]}>
+      <Card style={dynamicStyles.disclaimerCard}>
         <Card.Content>
-          <Text variant="bodySmall" style={styles.disclaimer}>
+          <Text variant="bodySmall" style={[styles.disclaimer, { color: colors.onSurface }]}>
             ⚠️ Disclaimer: These predictions are based on statistical models and historical data.
             Actual water levels may vary due to unforeseen events, policy changes, or extreme
             weather conditions. Always consult with local authorities for critical decisions.
@@ -323,13 +352,6 @@ const ForecastScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  card: {
-    margin: 16,
-  },
   sectionTitle: {
     fontWeight: 'bold',
     marginBottom: 12,
@@ -363,14 +385,12 @@ const styles = StyleSheet.create({
     opacity: 0.7,
     marginBottom: 16,
   },
-  monthCard: {
-    marginBottom: 12,
-    backgroundColor: '#F9F9F9',
-  },
   monthHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 8,
   },
   trendContainer: {
     alignItems: 'center',
@@ -391,13 +411,8 @@ const styles = StyleSheet.create({
   methodologyText: {
     marginBottom: 12,
   },
-  disclaimerCard: {
-    backgroundColor: '#FFF3E0',
-    marginBottom: 32,
-  },
   disclaimer: {
     lineHeight: 20,
-    color: '#666',
   },
 });
 

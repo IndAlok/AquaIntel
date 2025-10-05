@@ -3,17 +3,18 @@
 
 import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryArea } from 'victory-native';
+import { useAppTheme } from '../store/ThemeContext';
 
 const WaterLevelChart = ({ data, title, height = 250 }) => {
-  const theme = useTheme();
+  const { colors, isDark } = useAppTheme();
   const screenWidth = Dimensions.get('window').width;
 
   if (!data || data.length === 0) {
     return (
-      <View style={[styles.container, { height }]}>
-        <Text>No data available</Text>
+      <View style={[styles.container, { height, backgroundColor: colors.surface }]}>
+        <Text style={{ color: colors.onSurface }}>No data available</Text>
       </View>
     );
   }
@@ -26,18 +27,18 @@ const WaterLevelChart = ({ data, title, height = 250 }) => {
   }));
 
   return (
-    <View style={styles.container}>
-      {title && <Text variant="titleMedium" style={styles.title}>{title}</Text>}
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      {title && <Text variant="titleMedium" style={[styles.title, { color: colors.onSurface }]}>{title}</Text>}
       <VictoryChart
-        width={screenWidth - 32}
+        width={Math.min(screenWidth - 32, 600)}
         height={height}
         theme={VictoryTheme.material}
         padding={{ top: 20, bottom: 40, left: 50, right: 20 }}
       >
         <VictoryAxis
           style={{
-            axis: { stroke: theme.colors.outline },
-            tickLabels: { fill: theme.colors.onSurface, fontSize: 10 },
+            axis: { stroke: colors.outline },
+            tickLabels: { fill: colors.onSurface, fontSize: 10 },
           }}
           tickFormat={(t) => {
             if (chartData[t]?.date) {
@@ -50,9 +51,9 @@ const WaterLevelChart = ({ data, title, height = 250 }) => {
         <VictoryAxis
           dependentAxis
           style={{
-            axis: { stroke: theme.colors.outline },
-            tickLabels: { fill: theme.colors.onSurface, fontSize: 10 },
-            grid: { stroke: theme.colors.surfaceVariant, strokeDasharray: '4,4' },
+            axis: { stroke: colors.outline },
+            tickLabels: { fill: colors.onSurface, fontSize: 10 },
+            grid: { stroke: colors.surfaceVariant, strokeDasharray: '4,4' },
           }}
           label="Water Level (m)"
         />
@@ -60,9 +61,9 @@ const WaterLevelChart = ({ data, title, height = 250 }) => {
           data={chartData}
           style={{
             data: {
-              fill: theme.colors.primary,
+              fill: colors.primary,
               fillOpacity: 0.2,
-              stroke: theme.colors.primary,
+              stroke: colors.primary,
               strokeWidth: 2,
             },
           }}
@@ -75,10 +76,11 @@ const WaterLevelChart = ({ data, title, height = 250 }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 8,
     marginVertical: 8,
+    width: '100%',
+    alignSelf: 'center',
   },
   title: {
     marginBottom: 8,
