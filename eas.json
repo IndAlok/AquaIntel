@@ -9,7 +9,7 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease"
+        "gradleCommand": ":app:assembleRelease -PreactNativeArchitectures=arm64-v8a"
       },
       "env": {
         "NODE_ENV": "development"
@@ -19,7 +19,7 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease",
+        "gradleCommand": ":app:assembleRelease -PreactNativeArchitectures=arm64-v8a",
         "image": "latest"
       },
       "cache": {
@@ -31,7 +31,7 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk",
-        "gradleCommand": "clean :app:assembleRelease",
+        "gradleCommand": "clean :app:assembleRelease -PreactNativeArchitectures=arm64-v8a",
         "image": "latest"
       },
       "cache": {
@@ -41,7 +41,7 @@
     "production": {
       "android": {
         "buildType": "app-bundle",
-        "gradleCommand": ":app:bundleRelease",
+        "gradleCommand": ":app:bundleRelease -PreactNativeArchitectures=arm64-v8a",
         "image": "latest"
       },
       "cache": {
@@ -56,7 +56,7 @@
       "extends": "production",
       "android": {
         "buildType": "app-bundle",
-        "gradleCommand": "clean :app:bundleRelease",
+        "gradleCommand": "clean :app:bundleRelease -PreactNativeArchitectures=arm64-v8a",
         "image": "latest"
       },
       "cache": {
@@ -66,7 +66,7 @@
     "local-fast": {
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease",
+        "gradleCommand": ":app:assembleRelease -PreactNativeArchitectures=arm64-v8a",
         "withoutCredentials": true
       },
       "env": {
@@ -77,7 +77,7 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease",
+        "gradleCommand": ":app:assembleRelease -PreactNativeArchitectures=arm64-v8a",
         "image": "latest",
         "withoutCredentials": true
       },

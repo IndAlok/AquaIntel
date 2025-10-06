@@ -46,7 +46,8 @@
         "RECEIVE_SMS",
         "SEND_SMS"
       ],
-      "jsEngine": "hermes"
+      "jsEngine": "hermes",
+      "architectures": ["arm64-v8a"]
     },
     "web": {
       "favicon": "./assets/logo.png"

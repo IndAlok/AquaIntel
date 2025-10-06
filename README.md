@@ -262,7 +262,15 @@ npm install
 
 # Start the development server
 npm start
+
+# Build APK locally (ARM64-v8a only)
+npm run build:local
+
+# Build with EAS (ARM64-v8a only, when available)
+npm run build:android
 ```
+
+**Note:** All builds are hardcoded for **ARM64-v8a architecture only** for optimal size and performance.
 
 **👉 For detailed setup instructions, see [SETUP_GUIDE.md](SETUP_GUIDE.md)**
 

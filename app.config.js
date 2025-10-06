@@ -37,15 +37,30 @@ module.exports = ({ config }) => {
         "expo-build-properties",
         {
           android: {
-            compileSdkVersion: 35,  // UPDATED: Required by androidx.core:core:1.16.0
-            targetSdkVersion: 34,   // Keep at 34 for compatibility
-            minSdkVersion: 24,      // CRITICAL: Must be 24 for Hermes hermestooling compatibility
-            buildToolsVersion: "35.0.0",  // UPDATED: Matches compileSdk
+            compileSdkVersion: 35,
+            targetSdkVersion: 34,
+            minSdkVersion: 24,
+            buildToolsVersion: "35.0.0",
             usesCleartextTraffic: true,
             enableProguardInReleaseBuilds: true,
             enableHermes: true,
-            enableShrinkResourcesInReleaseBuilds: true,  // Remove unused resources
-            extraProguardRules: "-keep class com.facebook.hermes.unicode.** { *; }\n-keep class com.facebook.jni.** { *; }"
+            enableShrinkResourcesInReleaseBuilds: true,
+            useLegacyPackaging: false,
+            networkInspector: false,
+            extraProguardRules: "-keep class com.facebook.hermes.unicode.** { *; }\n-keep class com.facebook.jni.** { *; }\n-dontwarn com.facebook.react.**",
+            packagingOptions: {
+              pickFirst: [
+                "lib/arm64-v8a/libc++_shared.so"
+              ],
+              exclude: [
+                "lib/x86/**",
+                "lib/x86_64/**",
+                "lib/armeabi-v7a/**",
+                "lib/armeabi/**",
+                "lib/mips/**",
+                "lib/mips64/**"
+              ]
+            }
           },
           ios: {
             deploymentTarget: "15.1"

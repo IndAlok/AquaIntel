@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
+    "start": "expo start --clear",
+    "android": "expo start --android --clear",
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "eslint . --ext .js,.jsx",
@@ -12,8 +12,10 @@
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,json,md}\"",
     "doctor": "expo doctor",
-    "build:android": "eas build --platform android --profile preview",
-    "build:android:prod": "eas build --platform android --profile production"
+    "build:android": "eas build --platform android --profile preview-no-cache",
+    "build:android:prod": "eas build --platform android --profile production-no-cache",
+    "prebuild": "npx expo prebuild --platform android --clean",
+    "build:local": "npm run prebuild && cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a"
   },
   "dependencies": {
     "@dataconnect/generated": "file:src/dataconnect-generated",

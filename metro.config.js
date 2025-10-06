@@ -4,6 +4,9 @@ const { getDefaultConfig } = require('expo/metro-config');
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname);
 
+// Reset cache on start to avoid Reanimated errors
+config.resetCache = true;
+
 // Optimization: Enable aggressive minification in production
 config.transformer = {
   ...config.transformer,
