@@ -27,7 +27,7 @@
     "@react-native-firebase/app": "^23.4.0",
     "@react-native-firebase/crashlytics": "^23.4.0",
     "@react-native-masked-view/masked-view": "^0.2.9",
-    "@react-navigation/bottom-tabs": "^6.6.1",
+    "@react-navigation/bottom-tabs": "^7.4.8",
     "@react-navigation/drawer": "^6.7.2",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
