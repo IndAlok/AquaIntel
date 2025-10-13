@@ -61,7 +61,7 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
-    "babel-preset-expo": "^54.0.3",
+    "babel-preset-expo": "^54.0.4",
     "eslint": "^8.50.0",
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",
