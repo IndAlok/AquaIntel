@@ -59,9 +59,9 @@
     "victory-native": "^36.9.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
+    "@babel/core": "^7.28.5",
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
-    "babel-preset-expo": "^54.0.3",
+    "babel-preset-expo": "^54.0.6",
     "eslint": "^8.50.0",
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-react-hooks": "^4.6.0",
