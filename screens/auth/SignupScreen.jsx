@@ -1,17 +1,13 @@
-// screens/auth/SignupScreen.jsx
-// Signup screen for new user registration
-
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Text, TextInput, useTheme, Snackbar } from 'react-native-paper';
+import { Text, TextInput, useTheme, Snackbar, Chip, Divider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ThemedButton from '../../components/ThemedButton';
 import { useAuth } from '../../store/AuthContext';
 
 const SignupScreen = ({ navigation }) => {
   const theme = useTheme();
-  const { signup } = useAuth();
-  
+  const { signup, firebaseDisabled, signInWithGoogle, googleLoading, googleAuthAvailable } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,47 +18,44 @@ const SignupScreen = ({ navigation }) => {
 
   const validateForm = () => {
     if (!name || !email || !password || !confirmPassword) {
-      setError('Please fill in all fields');
+      setError('Please fill all fields');
       return false;
     }
-
     if (password.length < 6) {
       setError('Password must be at least 6 characters');
       return false;
     }
-
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return false;
     }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email address');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email');
       return false;
     }
-
     return true;
   };
 
   const handleSignup = async () => {
     if (!validateForm()) return;
-
     setLoading(true);
     setError('');
-
     const result = await signup(email, password, name);
-    
     setLoading(false);
+    if (!result.success) setError(result.error || 'Signup failed');
+  };
 
+  const handleGoogleSignUp = async () => {
+    setError('');
+    const result = await signInWithGoogle();
     if (!result.success) {
-      setError(result.error || 'Signup failed. Please try again.');
+      setError(result.error || 'Google Sign-Up failed');
     }
   };
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -71,11 +64,15 @@ const SignupScreen = ({ navigation }) => {
           <Text variant="headlineLarge" style={[styles.title, { color: theme.colors.primary }]}>
             Create Account
           </Text>
-          <Text variant="bodyLarge" style={styles.subtitle}>
+          <Text variant="bodyLarge" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
             Join the AquaIntel community
           </Text>
+          {firebaseDisabled && (
+            <Chip mode="outlined" style={styles.chip} textStyle={{ color: theme.colors.error }}>
+              Signup disabled: add Firebase env
+            </Chip>
+          )}
         </View>
-
         <View style={styles.form}>
           <TextInput
             label="Full Name"
@@ -85,7 +82,6 @@ const SignupScreen = ({ navigation }) => {
             left={<TextInput.Icon icon="account" />}
             style={styles.input}
           />
-
           <TextInput
             label="Email"
             value={email}
@@ -96,7 +92,6 @@ const SignupScreen = ({ navigation }) => {
             left={<TextInput.Icon icon="email" />}
             style={styles.input}
           />
-
           <TextInput
             label="Password"
             value={password}
@@ -112,7 +107,6 @@ const SignupScreen = ({ navigation }) => {
             }
             style={styles.input}
           />
-
           <TextInput
             label="Confirm Password"
             value={confirmPassword}
@@ -122,41 +116,55 @@ const SignupScreen = ({ navigation }) => {
             left={<TextInput.Icon icon="lock-check" />}
             style={styles.input}
           />
-
           <ThemedButton
             onPress={handleSignup}
             loading={loading}
-            style={styles.signupButton}
+            disabled={firebaseDisabled}
+            style={styles.button}
           >
             Sign Up
           </ThemedButton>
-
-          <View style={styles.loginContainer}>
-            <Text variant="bodyMedium">Already have an account? </Text>
+          <View style={styles.dividerContainer}>
+            <Divider style={[styles.divider, { backgroundColor: theme.colors.outline }]} />
+            <Text variant="bodyMedium" style={[styles.dividerText, { color: theme.colors.onSurfaceVariant }]}>
+              or
+            </Text>
+            <Divider style={[styles.divider, { backgroundColor: theme.colors.outline }]} />
+          </View>
+          {googleAuthAvailable && (
+            <ThemedButton
+              mode="outlined"
+              onPress={handleGoogleSignUp}
+              loading={googleLoading}
+              disabled={loading || firebaseDisabled || googleLoading}
+              style={styles.button}
+              icon={() => <MaterialCommunityIcons name="google" size={20} color={theme.colors.primary} />}
+            >
+              Continue with Google
+            </ThemedButton>
+          )}
+          <View style={styles.loginRow}>
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+              Already have an account?{' '}
+            </Text>
             <Text
               variant="bodyMedium"
-              style={[styles.loginLink, { color: theme.colors.primary }]}
+              style={{ color: theme.colors.primary, fontWeight: 'bold' }}
               onPress={() => navigation.navigate('Login')}
             >
               Login
             </Text>
           </View>
         </View>
-
-        <Text variant="bodySmall" style={styles.footer}>
-          By signing up, you agree to our Terms of Service{'\n'}
-          and Privacy Policy
+        <Text variant="bodySmall" style={[styles.footer, { color: theme.colors.onSurfaceVariant }]}>
+          By signing up, you agree to our Terms{'\n'}and Privacy Policy
         </Text>
       </ScrollView>
-
       <Snackbar
         visible={!!error}
         onDismiss={() => setError('')}
         duration={3000}
-        action={{
-          label: 'Dismiss',
-          onPress: () => setError(''),
-        }}
+        action={{ label: 'OK', onPress: () => setError('') }}
       >
         {error}
       </Snackbar>
@@ -165,48 +173,57 @@ const SignupScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
+  container: { 
+    flex: 1 
   },
-  scrollContent: {
-    flexGrow: 1,
-    padding: 24,
+  scrollContent: { 
+    flexGrow: 1, 
+    padding: 24 
   },
-  header: {
-    alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 32,
+  header: { 
+    alignItems: 'center', 
+    marginTop: 24, 
+    marginBottom: 32 
   },
-  title: {
-    marginTop: 16,
-    fontWeight: 'bold',
+  title: { 
+    marginTop: 16, 
+    fontWeight: 'bold' 
   },
   subtitle: {
-    marginTop: 8,
-    color: '#666',
+    marginTop: 8
   },
-  form: {
-    flex: 1,
+  chip: {
+    marginTop: 12
   },
-  input: {
-    marginBottom: 16,
+  form: { 
+    flex: 1 
   },
-  signupButton: {
-    marginTop: 8,
+  input: { 
+    marginBottom: 16 
   },
-  loginContainer: {
+  button: { 
+    marginTop: 8 
+  },
+  dividerContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 24,
+    alignItems: 'center',
+    marginVertical: 20,
   },
-  loginLink: {
-    fontWeight: 'bold',
+  divider: { 
+    flex: 1, 
+    height: 1 
   },
-  footer: {
-    textAlign: 'center',
-    color: '#999',
-    marginTop: 16,
+  dividerText: { 
+    marginHorizontal: 16 
+  },
+  loginRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'center', 
+    marginTop: 24 
+  },
+  footer: { 
+    textAlign: 'center', 
+    marginTop: 32 
   },
 });
 

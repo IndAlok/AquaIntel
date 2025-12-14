@@ -1,43 +1,66 @@
-// screens/main/SettingsScreen.jsx
-// App settings and user profile screen - FULLY FUNCTIONAL
+﻿// App settings and user profile screen - FULLY FUNCTIONAL
 
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Text, Card, List, Switch, Divider, Avatar, Snackbar, Portal, Dialog, TextInput, RadioButton } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, Platform } from 'react-native';
+import {
+  Text,
+  Card,
+  List,
+  Switch,
+  Divider,
+  Avatar,
+  Snackbar,
+  Portal,
+  Dialog,
+  TextInput,
+  RadioButton,
+  Button,
+} from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ThemedButton from '../../components/ThemedButton';
 import { useAuth } from '../../store/AuthContext';
 import { useAppTheme } from '../../store/ThemeContext';
-import { updateProfile, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import {
+  updateProfile,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from 'firebase/auth';
 
 const SettingsScreen = () => {
   const { colors, isDark, themeMode, setThemeMode } = useAppTheme();
   const { user, logout } = useAuth();
-  
+
   // Notification settings
   const [notifications, setNotifications] = useState(true);
   const [criticalAlerts, setCriticalAlerts] = useState(true);
   const [weeklyReports, setWeeklyReports] = useState(false);
   const [dataSync, setDataSync] = useState(true);
-  
+
   // UI state
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  
+
   // Edit Profile Dialog
   const [editProfileVisible, setEditProfileVisible] = useState(false);
   const [editDisplayName, setEditDisplayName] = useState(user?.displayName || '');
   const [profileLoading, setProfileLoading] = useState(false);
-  
+
   // Change Password Dialog
   const [changePasswordVisible, setChangePasswordVisible] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
-  
+
   // Theme Dialog
   const [themeDialogVisible, setThemeDialogVisible] = useState(false);
+
+  // Logout Dialog
+  const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
+
+  // Clear Cache Dialog
+  const [clearCacheDialogVisible, setClearCacheDialogVisible] = useState(false);
 
   const handleEditProfile = async () => {
     if (!editDisplayName.trim()) {
@@ -85,15 +108,12 @@ const SettingsScreen = () => {
     setPasswordLoading(true);
     try {
       // Re-authenticate user
-      const credential = EmailAuthProvider.credential(
-        user.email,
-        currentPassword
-      );
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
       await reauthenticateWithCredential(user, credential);
 
       // Update password
       await updatePassword(user, newPassword);
-      
+
       setSnackbarMessage('Password changed successfully!');
       setSnackbarVisible(true);
       setChangePasswordVisible(false);
@@ -123,37 +143,22 @@ const SettingsScreen = () => {
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-          },
-        },
-      ]
-    );
+    setLogoutDialogVisible(true);
+  };
+
+  const confirmLogout = async () => {
+    setLogoutDialogVisible(false);
+    await logout();
   };
 
   const handleClearCache = () => {
-    Alert.alert(
-      'Clear Cache',
-      'This will clear all cached data. Are you sure?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear',
-          onPress: () => {
-            setSnackbarMessage('Cache cleared successfully');
-            setSnackbarVisible(true);
-          },
-        },
-      ]
-    );
+    setClearCacheDialogVisible(true);
+  };
+
+  const confirmClearCache = () => {
+    setClearCacheDialogVisible(false);
+    setSnackbarMessage('Cache cleared successfully');
+    setSnackbarVisible(true);
   };
 
   const handleExportData = () => {
@@ -206,9 +211,9 @@ const SettingsScreen = () => {
       <Card style={dynamicStyles.profileCard}>
         <Card.Content>
           <View style={styles.profileHeader}>
-            <Avatar.Text 
-              size={64} 
-              label={user?.displayName?.charAt(0)?.toUpperCase() || 'U'} 
+            <Avatar.Text
+              size={64}
+              label={user?.displayName?.charAt(0)?.toUpperCase() || 'U'}
               style={{ backgroundColor: colors.primary }}
             />
             <View style={styles.profileInfo}>
@@ -232,8 +237,16 @@ const SettingsScreen = () => {
           <List.Item
             title="Edit Profile"
             titleStyle={{ color: colors.onSurface }}
-            left={() => <MaterialCommunityIcons name="account-edit" size={24} color={colors.primary} />}
-            right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.onSurfaceVariant} />}
+            left={() => (
+              <MaterialCommunityIcons name="account-edit" size={24} color={colors.primary} />
+            )}
+            right={() => (
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={24}
+                color={colors.onSurfaceVariant}
+              />
+            )}
             onPress={() => {
               setEditDisplayName(user?.displayName || '');
               setEditProfileVisible(true);
@@ -243,8 +256,16 @@ const SettingsScreen = () => {
           <List.Item
             title="Change Password"
             titleStyle={{ color: colors.onSurface }}
-            left={() => <MaterialCommunityIcons name="lock-reset" size={24} color={colors.primary} />}
-            right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.onSurfaceVariant} />}
+            left={() => (
+              <MaterialCommunityIcons name="lock-reset" size={24} color={colors.primary} />
+            )}
+            right={() => (
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={24}
+                color={colors.onSurfaceVariant}
+              />
+            )}
             onPress={() => setChangePasswordVisible(true)}
           />
           <Divider />
@@ -253,8 +274,20 @@ const SettingsScreen = () => {
             description={`Current: ${themeMode === 'system' ? 'System Default' : themeMode === 'dark' ? 'Dark' : 'Light'}`}
             titleStyle={{ color: colors.onSurface }}
             descriptionStyle={{ color: colors.onSurfaceVariant }}
-            left={() => <MaterialCommunityIcons name={isDark ? 'moon-waning-crescent' : 'white-balance-sunny'} size={24} color={colors.primary} />}
-            right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.onSurfaceVariant} />}
+            left={() => (
+              <MaterialCommunityIcons
+                name={isDark ? 'moon-waning-crescent' : 'white-balance-sunny'}
+                size={24}
+                color={colors.primary}
+              />
+            )}
+            right={() => (
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={24}
+                color={colors.onSurfaceVariant}
+              />
+            )}
             onPress={() => setThemeDialogVisible(true)}
           />
         </Card.Content>
@@ -273,7 +306,11 @@ const SettingsScreen = () => {
             descriptionStyle={{ color: colors.onSurfaceVariant }}
             left={() => <MaterialCommunityIcons name="bell" size={24} color={colors.primary} />}
             right={() => (
-              <Switch value={notifications} onValueChange={setNotifications} color={colors.primary} />
+              <Switch
+                value={notifications}
+                onValueChange={setNotifications}
+                color={colors.primary}
+              />
             )}
           />
           <Divider />
@@ -284,7 +321,11 @@ const SettingsScreen = () => {
             descriptionStyle={{ color: colors.onSurfaceVariant }}
             left={() => <MaterialCommunityIcons name="alert" size={24} color={colors.primary} />}
             right={() => (
-              <Switch value={criticalAlerts} onValueChange={setCriticalAlerts} color={colors.primary} />
+              <Switch
+                value={criticalAlerts}
+                onValueChange={setCriticalAlerts}
+                color={colors.primary}
+              />
             )}
           />
           <Divider />
@@ -293,9 +334,15 @@ const SettingsScreen = () => {
             description="Summary of groundwater status"
             titleStyle={{ color: colors.onSurface }}
             descriptionStyle={{ color: colors.onSurfaceVariant }}
-            left={() => <MaterialCommunityIcons name="email-newsletter" size={24} color={colors.primary} />}
+            left={() => (
+              <MaterialCommunityIcons name="email-newsletter" size={24} color={colors.primary} />
+            )}
             right={() => (
-              <Switch value={weeklyReports} onValueChange={setWeeklyReports} color={colors.primary} />
+              <Switch
+                value={weeklyReports}
+                onValueChange={setWeeklyReports}
+                color={colors.primary}
+              />
             )}
           />
         </Card.Content>
@@ -324,7 +371,13 @@ const SettingsScreen = () => {
             titleStyle={{ color: colors.onSurface }}
             descriptionStyle={{ color: colors.onSurfaceVariant }}
             left={() => <MaterialCommunityIcons name="database" size={24} color={colors.primary} />}
-            right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.onSurfaceVariant} />}
+            right={() => (
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={24}
+                color={colors.onSurfaceVariant}
+              />
+            )}
             onPress={handleClearCache}
           />
           <Divider />
@@ -334,7 +387,13 @@ const SettingsScreen = () => {
             titleStyle={{ color: colors.onSurface }}
             descriptionStyle={{ color: colors.onSurfaceVariant }}
             left={() => <MaterialCommunityIcons name="download" size={24} color={colors.primary} />}
-            right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.onSurfaceVariant} />}
+            right={() => (
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={24}
+                color={colors.onSurfaceVariant}
+              />
+            )}
             onPress={handleExportData}
           />
         </Card.Content>
@@ -351,14 +410,24 @@ const SettingsScreen = () => {
             description="1.0.0"
             titleStyle={{ color: colors.onSurface }}
             descriptionStyle={{ color: colors.onSurfaceVariant }}
-            left={() => <MaterialCommunityIcons name="information" size={24} color={colors.primary} />}
+            left={() => (
+              <MaterialCommunityIcons name="information" size={24} color={colors.primary} />
+            )}
           />
           <Divider />
           <List.Item
             title="Terms of Service"
             titleStyle={{ color: colors.onSurface }}
-            left={() => <MaterialCommunityIcons name="file-document" size={24} color={colors.primary} />}
-            right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.onSurfaceVariant} />}
+            left={() => (
+              <MaterialCommunityIcons name="file-document" size={24} color={colors.primary} />
+            )}
+            right={() => (
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={24}
+                color={colors.onSurfaceVariant}
+              />
+            )}
             onPress={() => {
               setSnackbarMessage('Terms of Service will be available soon');
               setSnackbarVisible(true);
@@ -368,8 +437,16 @@ const SettingsScreen = () => {
           <List.Item
             title="Privacy Policy"
             titleStyle={{ color: colors.onSurface }}
-            left={() => <MaterialCommunityIcons name="shield-check" size={24} color={colors.primary} />}
-            right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.onSurfaceVariant} />}
+            left={() => (
+              <MaterialCommunityIcons name="shield-check" size={24} color={colors.primary} />
+            )}
+            right={() => (
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={24}
+                color={colors.onSurfaceVariant}
+              />
+            )}
             onPress={() => {
               setSnackbarMessage('Privacy Policy will be available soon');
               setSnackbarVisible(true);
@@ -379,8 +456,16 @@ const SettingsScreen = () => {
           <List.Item
             title="Help & Support"
             titleStyle={{ color: colors.onSurface }}
-            left={() => <MaterialCommunityIcons name="help-circle" size={24} color={colors.primary} />}
-            right={() => <MaterialCommunityIcons name="chevron-right" size={24} color={colors.onSurfaceVariant} />}
+            left={() => (
+              <MaterialCommunityIcons name="help-circle" size={24} color={colors.primary} />
+            )}
+            right={() => (
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={24}
+                color={colors.onSurfaceVariant}
+              />
+            )}
             onPress={() => {
               setSnackbarMessage('Support will be available soon');
               setSnackbarVisible(true);
@@ -423,7 +508,11 @@ const SettingsScreen = () => {
 
       {/* Edit Profile Dialog */}
       <Portal>
-        <Dialog visible={editProfileVisible} onDismiss={() => setEditProfileVisible(false)} style={{ backgroundColor: colors.surface }}>
+        <Dialog
+          visible={editProfileVisible}
+          onDismiss={() => setEditProfileVisible(false)}
+          style={{ backgroundColor: colors.surface }}
+        >
           <Dialog.Title style={{ color: colors.onSurface }}>Edit Profile</Dialog.Title>
           <Dialog.Content>
             <TextInput
@@ -449,7 +538,11 @@ const SettingsScreen = () => {
 
       {/* Change Password Dialog */}
       <Portal>
-        <Dialog visible={changePasswordVisible} onDismiss={() => setChangePasswordVisible(false)} style={{ backgroundColor: colors.surface }}>
+        <Dialog
+          visible={changePasswordVisible}
+          onDismiss={() => setChangePasswordVisible(false)}
+          style={{ backgroundColor: colors.surface }}
+        >
           <Dialog.Title style={{ color: colors.onSurface }}>Change Password</Dialog.Title>
           <Dialog.Content>
             <TextInput
@@ -496,7 +589,11 @@ const SettingsScreen = () => {
 
       {/* Theme Selection Dialog */}
       <Portal>
-        <Dialog visible={themeDialogVisible} onDismiss={() => setThemeDialogVisible(false)} style={{ backgroundColor: colors.surface }}>
+        <Dialog
+          visible={themeDialogVisible}
+          onDismiss={() => setThemeDialogVisible(false)}
+          style={{ backgroundColor: colors.surface }}
+        >
           <Dialog.Title style={{ color: colors.onSurface }}>Choose Theme</Dialog.Title>
           <Dialog.Content>
             <RadioButton.Group onValueChange={handleThemeChange} value={themeMode}>
@@ -530,6 +627,39 @@ const SettingsScreen = () => {
             <ThemedButton mode="text" onPress={() => setThemeDialogVisible(false)}>
               Close
             </ThemedButton>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+
+      {/* Logout Confirmation Dialog */}
+      <Portal>
+        <Dialog visible={logoutDialogVisible} onDismiss={() => setLogoutDialogVisible(false)}>
+          <Dialog.Title>Logout</Dialog.Title>
+          <Dialog.Content>
+            <Text>Are you sure you want to logout?</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setLogoutDialogVisible(false)}>Cancel</Button>
+            <Button onPress={confirmLogout} textColor={colors.error}>
+              Logout
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+
+      {/* Clear Cache Confirmation Dialog */}
+      <Portal>
+        <Dialog
+          visible={clearCacheDialogVisible}
+          onDismiss={() => setClearCacheDialogVisible(false)}
+        >
+          <Dialog.Title>Clear Cache</Dialog.Title>
+          <Dialog.Content>
+            <Text>This will clear all cached data. Are you sure?</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setClearCacheDialogVisible(false)}>Cancel</Button>
+            <Button onPress={confirmClearCache}>Clear</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>

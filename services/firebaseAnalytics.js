@@ -1,5 +1,4 @@
-// services/firebaseAnalytics.js
-// Firebase Analytics using Web SDK (compatible with Expo)
+﻿// Firebase Analytics using Web SDK (compatible with Expo)
 
 import { getAnalytics, logEvent as firebaseLogEvent, setUserId as firebaseSetUserId, setUserProperties } from 'firebase/analytics';
 import app from './firebase';
@@ -8,9 +7,9 @@ import app from './firebase';
 let analytics;
 try {
   analytics = getAnalytics(app);
-  console.log('✅ Firebase Analytics initialized');
+  console.log('âœ… Firebase Analytics initialized');
 } catch (error) {
-  console.warn('⚠️ Firebase Analytics not available:', error.message);
+  console.warn('âš ï¸ Firebase Analytics not available:', error.message);
 }
 
 // Analytics service
@@ -22,7 +21,7 @@ export const logEvent = async (eventName, params = {}) => {
   
   try {
     firebaseLogEvent(analytics, eventName, params);
-    console.log(`📊 Analytics: ${eventName}`, params);
+    console.log(`ðŸ“Š Analytics: ${eventName}`, params);
   } catch (error) {
     console.error('Analytics error:', error);
   }
@@ -37,7 +36,7 @@ export const logScreenView = async (screenName, screenClass = null) => {
       screen_name: screenName,
       screen_class: screenClass || screenName
     });
-    console.log(`📱 Screen View: ${screenName}`);
+    console.log(`ðŸ“± Screen View: ${screenName}`);
   } catch (error) {
     console.error('Screen view logging error:', error);
   }
@@ -49,7 +48,7 @@ export const setUserProperty = async (properties) => {
   
   try {
     setUserProperties(analytics, properties);
-    console.log(`👤 User Properties:`, properties);
+    console.log(`ðŸ‘¤ User Properties:`, properties);
   } catch (error) {
     console.error('User property error:', error);
   }
@@ -61,7 +60,7 @@ export const setUserId = async (userId) => {
   
   try {
     firebaseSetUserId(analytics, userId);
-    console.log(`🆔 User ID set: ${userId}`);
+    console.log(`ðŸ†” User ID set: ${userId}`);
   } catch (error) {
     console.error('User ID error:', error);
   }
@@ -70,7 +69,7 @@ export const setUserId = async (userId) => {
 // Error logging (console only in web SDK)
 export const logError = (error, context = {}) => {
   try {
-    console.error('🔥 Error:', error, context);
+    console.error('ðŸ”¥ Error:', error, context);
     if (analytics) {
       firebaseLogEvent(analytics, 'error', {
         error_message: error.message,
@@ -85,13 +84,13 @@ export const logError = (error, context = {}) => {
 
 // Custom attributes (stored as event parameters in Web SDK)
 export const setCustomAttribute = (key, value) => {
-  console.log(`🏷️ Custom Attribute: ${key} = ${value}`);
+  console.log(`ðŸ·ï¸ Custom Attribute: ${key} = ${value}`);
   // Web SDK doesn't have setAttribute, use event parameters instead
 };
 
 // Breadcrumb (console logging in Web SDK)
 export const logBreadcrumb = (message) => {
-  console.log(`🍞 Breadcrumb: ${message}`);
+  console.log(`ðŸž Breadcrumb: ${message}`);
 };
 
 // Pre-defined event loggers

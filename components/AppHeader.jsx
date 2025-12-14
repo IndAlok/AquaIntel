@@ -1,5 +1,4 @@
-// components/AppHeader.jsx
-// Reusable header component with theme support
+﻿// Reusable header component with theme support
 
 import React from 'react';
 import { Appbar, useTheme } from 'react-native-paper';

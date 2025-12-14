@@ -1,5 +1,4 @@
-// screens/main/ForecastScreen.jsx
-// Predictive analytics and forecasting screen - FULLY FIXED
+﻿// Predictive analytics and forecasting screen - FULLY FIXED
 
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
@@ -341,7 +340,7 @@ const ForecastScreen = () => {
       <Card style={dynamicStyles.disclaimerCard}>
         <Card.Content>
           <Text variant="bodySmall" style={[styles.disclaimer, { color: colors.onSurface }]}>
-            ⚠️ Disclaimer: These predictions are based on statistical models and historical data.
+            âš ï¸ Disclaimer: These predictions are based on statistical models and historical data.
             Actual water levels may vary due to unforeseen events, policy changes, or extreme
             weather conditions. Always consult with local authorities for critical decisions.
           </Text>

@@ -1,7 +1,7 @@
-// components/AnimatedScreenWrapper.jsx
-// Wrapper component to add entrance animations to screens
+﻿// Wrapper component to add entrance animations to screens
 
 import React from 'react';
+import { Platform } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 
 const AnimatedScreenWrapper = ({ children, animation = 'fadeIn', duration = 300, delay = 0 }) => {
@@ -11,7 +11,7 @@ const AnimatedScreenWrapper = ({ children, animation = 'fadeIn', duration = 300,
       duration={duration}
       delay={delay}
       style={{ flex: 1 }}
-      useNativeDriver
+      useNativeDriver={Platform.OS !== 'web'}
     >
       {children}
     </Animatable.View>

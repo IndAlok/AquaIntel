@@ -1,6 +1,3 @@
-// navigation/AppNavigator.jsx
-// Main app navigator with drawer navigation and AI Assistant
-
 import React from 'react';
 import { View } from 'react-native';
 import DrawerNavigator from './DrawerNavigator';
@@ -9,9 +6,7 @@ import { useAuth } from '../store/AuthContext';
 
 const AppNavigator = () => {
   const { user } = useAuth();
-
-  // User context for AI Assistant
-  const userContext = {
+  const ctx = {
     name: user?.displayName || 'User',
     email: user?.email,
     role: 'Citizen',
@@ -20,11 +15,8 @@ const AppNavigator = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Main drawer navigation */}
       <DrawerNavigator />
-      
-      {/* Floating AI Assistant - available on all screens */}
-      <AIAssistant userContext={userContext} visible={true} />
+      <AIAssistant userContext={ctx} visible={true} />
     </View>
   );
 };

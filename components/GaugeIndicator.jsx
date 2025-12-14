@@ -1,5 +1,4 @@
-// components/GaugeIndicator.jsx
-// Circular gauge indicator for water level status
+﻿// Circular gauge indicator for water level status
 
 import React from 'react';
 import { View, StyleSheet } from 'react-native';

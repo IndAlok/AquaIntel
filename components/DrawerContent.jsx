@@ -1,17 +1,8 @@
-// components/DrawerContent.jsx
-// Custom drawer menu with profile section and navigation
+﻿// Custom drawer menu with profile section and navigation
 
 import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
-import {
-  Drawer,
-  Text,
-  Avatar,
-  Divider,
-  Switch,
-  useTheme,
-  Badge,
-} from 'react-native-paper';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Platform } from 'react-native';
+import { Drawer, Text, Avatar, Divider, Switch, useTheme, Badge } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { useAuth } from '../store/AuthContext';
@@ -24,11 +15,22 @@ const DrawerContent = (props) => {
   const { isDark, toggleTheme } = useAppTheme();
   const { navigation, state } = props;
 
-  const currentRoute = state.routeNames[state.index];
+  // Get current route name more reliably
+  const currentRoute =
+    state?.routes?.[state?.index]?.name || state?.routeNames?.[state?.index] || 'Dashboard';
 
   const handleLogout = async () => {
     await logout();
     navigation.closeDrawer();
+  };
+
+  // Handle navigation with drawer close
+  const handleNavigation = (route) => {
+    navigation.navigate(route);
+    // Close drawer after navigation on web
+    if (Platform.OS === 'web') {
+      setTimeout(() => navigation.closeDrawer(), 100);
+    }
   };
 
   const menuItems = [
@@ -107,7 +109,7 @@ const DrawerContent = (props) => {
       <Animatable.View animation="fadeInLeft" duration={600}>
         <View style={[styles.userSection, { backgroundColor: theme.colors.surfaceVariant }]}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('Profile')}
+            onPress={() => handleNavigation('Profile')}
             style={styles.profileButton}
           >
             <Avatar.Text
@@ -128,10 +130,7 @@ const DrawerContent = (props) => {
                   size={14}
                   color={theme.colors.primary}
                 />
-                <Text
-                  variant="labelSmall"
-                  style={{ color: theme.colors.primary, marginLeft: 4 }}
-                >
+                <Text variant="labelSmall" style={{ color: theme.colors.primary, marginLeft: 4 }}>
                   Verified User
                 </Text>
               </View>
@@ -159,7 +158,7 @@ const DrawerContent = (props) => {
                 <MaterialCommunityIcons name={item.icon} size={size} color={color} />
               )}
               active={currentRoute === item.route}
-              onPress={() => navigation.navigate(item.route)}
+              onPress={() => handleNavigation(item.route)}
               style={[
                 styles.drawerItem,
                 currentRoute === item.route && {
@@ -172,9 +171,7 @@ const DrawerContent = (props) => {
                     size={20}
                     style={{
                       backgroundColor:
-                        typeof item.badge === 'string'
-                          ? theme.colors.tertiary
-                          : theme.colors.error,
+                        typeof item.badge === 'string' ? theme.colors.tertiary : theme.colors.error,
                     }}
                   >
                     {item.badge}
@@ -205,7 +202,7 @@ const DrawerContent = (props) => {
                 <MaterialCommunityIcons name={item.icon} size={size} color={color} />
               )}
               active={currentRoute === item.route}
-              onPress={() => navigation.navigate(item.route)}
+              onPress={() => handleNavigation(item.route)}
               style={[
                 styles.drawerItem,
                 currentRoute === item.route && {

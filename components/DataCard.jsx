@@ -1,5 +1,4 @@
-// components/DataCard.jsx
-// Reusable card component for displaying data metrics
+﻿// Reusable card component for displaying data metrics
 
 import React from 'react';
 import { StyleSheet, View } from 'react-native';

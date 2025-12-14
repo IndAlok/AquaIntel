@@ -1,5 +1,4 @@
-// screens/main/NotificationsScreen.jsx
-// Notifications and alerts screen
+﻿// Notifications and alerts screen
 
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';

@@ -1,125 +1,110 @@
-// services/dataService.js
-// Unified data service that integrates real government data with fallback mock data
-
-import govAPI from './governmentAPI';
+﻿import govAPI from './governmentAPI';
+import nwicService from './nwicService';
 import { mockStations } from '../data/mockStations';
-import { mockTimeSeriesData } from '../data/mockTimeSeriesData';
-import { mockRainfallData } from '../data/mockRainfallData';
-import { getPredictions } from '../data/mockPredictions';
+import { getRecentTimeSeriesData } from '../data/mockTimeSeriesData';
+import { getRainfallData as generateRainfallData } from '../data/mockRainfallData';
+import { getPredictions, getRiskAssessment, getAIInsights } from '../data/mockPredictions';
 
 class DataService {
   constructor() {
     this.useRealData = process.env.EXPO_PUBLIC_USE_REAL_DATA === 'true';
-    this.cache = {
-      stations: null,
-      lastFetch: null,
-      cacheDuration: 5 * 60 * 1000 // 5 minutes
+    this.nwicAvailable = !!process.env.EXPO_PUBLIC_NWIC_API_URL;
+    this.cache = { stations: null, lastFetch: null, cacheDuration: 5 * 60 * 1000 };
+  }
+
+  normalizeStation(s) {
+    if (!s) return null;
+    const lvl = s.currentLevel ?? s.currentWaterLevel ?? s.level ?? 0;
+    return {
+      ...s,
+      currentLevel: lvl,
+      currentWaterLevel: s.currentWaterLevel ?? lvl,
+      latitude: s.latitude ?? s.location?.latitude ?? s.lat,
+      longitude: s.longitude ?? s.location?.longitude ?? s.lng,
+      lastUpdated: s.lastUpdated || s.updatedAt || new Date().toISOString(),
     };
   }
 
-  /**
-   * Get all DWLR stations - tries real data first, falls back to mock
-   */
-  async getStations(forceRefresh = false) {
-    // Check cache first
-    if (!forceRefresh && this.cache.stations && this.cache.lastFetch) {
-      const cacheAge = Date.now() - this.cache.lastFetch;
-      if (cacheAge < this.cache.cacheDuration) {
-        console.log('📦 Using cached station data');
-        return this.cache.stations;
-      }
-    }
-
-    // Try to fetch real data if enabled
+  async getStations(force = false) {
+    if (
+      !force &&
+      this.cache.stations &&
+      this.cache.lastFetch &&
+      Date.now() - this.cache.lastFetch < this.cache.cacheDuration
+    )
+      return this.cache.stations;
     if (this.useRealData) {
       try {
-        console.log('🌐 Attempting to fetch real government data...');
-        const realStations = await govAPI.fetchDWLRStations();
-        
-        if (realStations && realStations.length > 0) {
-          console.log(`✅ Successfully fetched ${realStations.length} real stations`);
-          this.cache.stations = realStations;
+        const nwic = this.nwicAvailable ? await nwicService.getStations() : [];
+        if (nwic?.length) {
+          this.cache.stations = nwic.map((s) => this.normalizeStation(s));
           this.cache.lastFetch = Date.now();
-          return realStations;
+          return this.cache.stations;
         }
-      } catch (error) {
-        console.log('⚠️  Real data fetch failed, using fallback data');
-      }
+      } catch (e) {}
+      try {
+        const gov = await govAPI.fetchDWLRStations();
+        if (gov?.length) {
+          this.cache.stations = gov.map((s) => this.normalizeStation(s));
+          this.cache.lastFetch = Date.now();
+          return this.cache.stations;
+        }
+      } catch (e) {}
     }
-
-    // Fallback to mock data
-    console.log('📊 Using mock station data (5,260 stations simulated)');
-    this.cache.stations = mockStations;
+    this.cache.stations = mockStations.map((s) => this.normalizeStation(s));
     this.cache.lastFetch = Date.now();
-    return mockStations;
+    return this.cache.stations;
   }
 
-  /**
-   * Get water level data for a specific station
-   */
   async getWaterLevelData(stationId, days = 30) {
     if (this.useRealData) {
       try {
-        const realData = await govAPI.fetchWaterLevelData(stationId, days);
-        if (realData && realData.length > 0) {
-          console.log(`✅ Fetched real water level data for station ${stationId}`);
-          return realData;
-        }
-      } catch (error) {
-        console.log('⚠️  Using fallback time series data');
-      }
+        const d = this.nwicAvailable
+          ? await nwicService.getGroundwaterTimeseries(stationId, days)
+          : [];
+        if (d?.length) return d;
+      } catch (e) {}
+      try {
+        const d = await govAPI.fetchWaterLevelData(stationId, days);
+        if (d?.length) return d;
+      } catch (e) {}
     }
-
-    // Fallback to mock data
-    return mockTimeSeriesData[stationId] || mockTimeSeriesData['DWLR-001'];
+    return getRecentTimeSeriesData(stationId, days);
   }
 
-  /**
-   * Get rainfall data for a location
-   */
   async getRainfallData(state, district, year) {
     if (this.useRealData) {
       try {
-        const realData = await govAPI.fetchRainfallData(state, district, year);
-        if (realData) {
-          console.log(`✅ Fetched real rainfall data for ${district}, ${state}`);
-          return realData;
-        }
-      } catch (error) {
-        console.log('⚠️  Using fallback rainfall data');
-      }
+        const f = {};
+        if (state) f.state = state;
+        if (district) f.district = district;
+        if (year) f.year = year;
+        const d = this.nwicAvailable ? await nwicService.getRainfall(f) : null;
+        if (d?.length) return d;
+      } catch (e) {}
+      try {
+        const d = await govAPI.fetchRainfallData(state, district, year);
+        if (d) return d;
+      } catch (e) {}
     }
-
-    // Fallback to mock data
-    return mockRainfallData;
+    return generateRainfallData(district, 365);
   }
 
-  /**
-   * Get predictions/forecasts for a station
-   */
   async getPredictions(stationId) {
-    // ML predictions - always use generated data for now
-    // In production, this would call a prediction API endpoint
     return getPredictions(stationId);
   }
 
-  /**
-   * Get water quality data
-   */
   async getWaterQuality(stationId) {
     if (this.useRealData) {
       try {
-        const realData = await govAPI.fetchWaterQualityData(stationId);
-        if (realData) {
-          console.log(`✅ Fetched real water quality data`);
-          return realData;
-        }
-      } catch (error) {
-        console.log('⚠️  Using generated quality data');
-      }
+        const d = this.nwicAvailable ? await nwicService.getWaterQuality(stationId) : null;
+        if (d) return d;
+      } catch (e) {}
+      try {
+        const d = await govAPI.fetchWaterQualityData(stationId);
+        if (d) return d;
+      } catch (e) {}
     }
-
-    // Generate mock quality data
     return {
       ph: (6.5 + Math.random() * 2).toFixed(1),
       tds: Math.floor(200 + Math.random() * 500),
@@ -127,157 +112,144 @@ class DataService {
       fluoride: (0.5 + Math.random() * 1).toFixed(2),
       arsenic: (0.001 + Math.random() * 0.01).toFixed(3),
       nitrate: Math.floor(10 + Math.random() * 40),
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
   }
 
-  /**
-   * Get state-wise statistics
-   */
   async getStateStats(state) {
     if (this.useRealData) {
       try {
-        const realStats = await govAPI.fetchStateStatistics(state);
-        if (realStats) {
-          console.log(`✅ Fetched real statistics for ${state}`);
-          return realStats;
+        if (this.nwicAvailable) {
+          const ns = await nwicService.getStateStats();
+          if (ns?.length) return state ? ns.find((s) => s.state === state) || null : ns;
         }
-      } catch (error) {
-        console.log('⚠️  Using calculated statistics from mock data');
-      }
+      } catch (e) {}
+      try {
+        const d = await govAPI.fetchStateStatistics(state);
+        if (d) return d;
+      } catch (e) {}
     }
-
-    // Calculate from mock data
-    const stateStations = mockStations.filter(s => s.state === state);
+    const ss = mockStations.filter((s) => s.state === state).map((s) => this.normalizeStation(s));
     return {
-      totalStations: stateStations.length,
-      activeStations: stateStations.filter(s => s.status === 'Active').length,
-      criticalStations: stateStations.filter(s => s.status === 'Critical').length,
-      avgWaterLevel: (stateStations.reduce((sum, s) => sum + s.currentLevel, 0) / stateStations.length).toFixed(2)
+      totalStations: ss.length,
+      activeStations: ss.filter((s) => s.status === 'Active').length,
+      criticalStations: ss.filter((s) => s.status === 'Critical').length,
+      avgWaterLevel: ss.length
+        ? (ss.reduce((a, s) => a + (s.currentLevel || 0), 0) / ss.length).toFixed(2)
+        : '0',
     };
   }
 
-  /**
-   * Get drought monitoring data
-   */
   async getDroughtData() {
     if (this.useRealData) {
       try {
-        const realData = await govAPI.fetchDroughtData();
-        if (realData) {
-          console.log('✅ Fetched real drought monitoring data');
-          return realData;
+        if (this.nwicAvailable) {
+          const d = await nwicService.getDroughtData();
+          if (d?.length) return d;
         }
-      } catch (error) {
-        console.log('⚠️  Drought data not available');
-      }
+      } catch (e) {}
+      try {
+        const d = await govAPI.fetchDroughtData();
+        if (d) return d;
+      } catch (e) {}
     }
-
-    // Mock drought data
     return [
-      { state: 'Rajasthan', district: 'Jaisalmer', severity: 'Severe', affectedArea: 5000, population: 150000 },
-      { state: 'Maharashtra', district: 'Osmanabad', severity: 'Moderate', affectedArea: 3000, population: 200000 },
-      { state: 'Karnataka', district: 'Tumkur', severity: 'Moderate', affectedArea: 2500, population: 180000 }
+      {
+        state: 'Rajasthan',
+        district: 'Jaisalmer',
+        severity: 'Severe',
+        affectedArea: 5000,
+        population: 150000,
+      },
+      {
+        state: 'Maharashtra',
+        district: 'Osmanabad',
+        severity: 'Moderate',
+        affectedArea: 3000,
+        population: 200000,
+      },
+      {
+        state: 'Karnataka',
+        district: 'Tumkur',
+        severity: 'Moderate',
+        affectedArea: 2500,
+        population: 180000,
+      },
     ];
   }
 
-  /**
-   * Search stations by name or location
-   */
-  async searchStations(query) {
-    const stations = await this.getStations();
-    const lowercaseQuery = query.toLowerCase();
-    
-    return stations.filter(station => 
-      station.name.toLowerCase().includes(lowercaseQuery) ||
-      station.district.toLowerCase().includes(lowercaseQuery) ||
-      station.state.toLowerCase().includes(lowercaseQuery)
+  async searchStations(q) {
+    const s = await this.getStations();
+    const lq = q.toLowerCase();
+    return s.filter(
+      (st) =>
+        st.name.toLowerCase().includes(lq) ||
+        st.district.toLowerCase().includes(lq) ||
+        st.state.toLowerCase().includes(lq)
     );
   }
 
-  /**
-   * Get stations by filter criteria
-   */
-  async getStationsByFilter(filter = {}) {
-    const stations = await this.getStations();
-    
-    return stations.filter(station => {
-      if (filter.state && station.state !== filter.state) return false;
-      if (filter.district && station.district !== filter.district) return false;
-      if (filter.status && station.status !== filter.status) return false;
-      if (filter.minLevel && station.currentLevel < filter.minLevel) return false;
-      if (filter.maxLevel && station.currentLevel > filter.maxLevel) return false;
+  async getStationsByFilter(f = {}) {
+    const s = await this.getStations();
+    return s.filter((st) => {
+      if (f.state && st.state !== f.state) return false;
+      if (f.district && st.district !== f.district) return false;
+      if (f.status && st.status !== f.status) return false;
+      if (f.minLevel && st.currentLevel < f.minLevel) return false;
+      if (f.maxLevel && st.currentLevel > f.maxLevel) return false;
       return true;
     });
   }
 
-  /**
-   * Get dashboard summary statistics
-   */
   async getDashboardStats() {
-    const stations = await this.getStations();
-    
-    const activeCount = stations.filter(s => s.status === 'Active').length;
-    const criticalCount = stations.filter(s => s.status === 'Critical').length;
-    const warningCount = stations.filter(s => s.status === 'Warning').length;
-    const inactiveCount = stations.filter(s => s.status === 'Inactive').length;
-    
-    const totalWaterLevel = stations.reduce((sum, s) => sum + (s.currentLevel || 0), 0);
-    const avgWaterLevel = (totalWaterLevel / stations.length).toFixed(2);
-    
+    const s = await this.getStations();
+    const a = s.filter((x) => x.status === 'Active').length;
+    const c = s.filter((x) => x.status === 'Critical').length;
+    const w = s.filter((x) => x.status === 'Warning').length;
+    const i = s.filter((x) => x.status === 'Inactive').length;
+    const avg = s.length
+      ? (s.reduce((t, x) => t + (x.currentLevel || 0), 0) / s.length).toFixed(2)
+      : '0';
     return {
-      total: stations.length,
-      active: activeCount,
-      critical: criticalCount,
-      warning: warningCount,
-      inactive: inactiveCount,
-      avgWaterLevel,
+      total: s.length,
+      active: a,
+      critical: c,
+      warning: w,
+      inactive: i,
+      avgWaterLevel: avg,
       monsoonActive: this.isMonsoonActive(),
-      dataSource: this.useRealData ? 'Government APIs (with fallback)' : 'Simulated Data',
-      lastUpdated: new Date().toISOString()
+      dataSource: this.useRealData ? 'Government APIs' : 'Simulated',
+      lastUpdated: new Date().toISOString(),
     };
   }
 
-  /**
-   * Check if monsoon season is active
-   */
   isMonsoonActive() {
-    const month = new Date().getMonth(); // 0-11
-    return month >= 5 && month <= 9; // June to October
+    const m = new Date().getMonth();
+    return m >= 5 && m <= 9;
   }
-
-  /**
-   * Clear cache to force data refresh
-   */
   clearCache() {
     this.cache.stations = null;
     this.cache.lastFetch = null;
-    console.log('🗑️  Cache cleared');
   }
-
-  /**
-   * Toggle between real and mock data
-   */
-  setUseRealData(useReal) {
-    this.useRealData = useReal;
+  setUseRealData(v) {
+    this.useRealData = v;
     this.clearCache();
-    console.log(`📊 Data source: ${useReal ? 'Real Government Data' : 'Mock Data'}`);
   }
-
-  /**
-   * Get data source information
-   */
   getDataSourceInfo() {
     return {
       usingRealData: this.useRealData,
       cacheStatus: this.cache.stations ? 'Active' : 'Empty',
       cacheAge: this.cache.lastFetch ? Math.floor((Date.now() - this.cache.lastFetch) / 1000) : 0,
-      dataProvider: this.useRealData ? 'CGWB/WRIS/IMD' : 'Simulated'
+      dataProvider: this.useRealData ? 'CGWB/WRIS/IMD' : 'Simulated',
     };
+  }
+  async getRiskAssessment(id) {
+    return getRiskAssessment(id);
+  }
+  async getAIInsights(id) {
+    return getAIInsights(id);
   }
 }
 
-// Export singleton instance
 export const dataService = new DataService();
-
 export default dataService;

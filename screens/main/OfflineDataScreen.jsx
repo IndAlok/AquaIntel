@@ -1,5 +1,4 @@
-// screens/main/OfflineDataScreen.jsx
-// Offline data management and sync screen
+﻿// Offline data management and sync screen
 
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
@@ -361,7 +360,7 @@ const OfflineDataScreen = () => {
               <React.Fragment key={item.id}>
                 <List.Item
                   title={item.title}
-                  description={`${item.description} • ${item.size}`}
+                  description={`${item.description} â€¢ ${item.size}`}
                   left={(props) => (
                     <List.Icon {...props} icon={item.icon} color={theme.colors.primary} />
                   )}

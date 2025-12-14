@@ -1,5 +1,4 @@
-// screens/auth/SplashScreen.jsx
-// Animated splash screen with beautiful entrance animations
+﻿// Animated splash screen with beautiful entrance animations
 
 import React, { useEffect } from 'react';
 import AnimatedSplash from '../../components/AnimatedSplash';

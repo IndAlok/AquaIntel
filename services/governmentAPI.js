@@ -1,5 +1,4 @@
-// services/governmentAPI.js
-// Integration with Indian Government Water Resources APIs
+﻿// Integration with Indian Government Water Resources APIs
 
 /**
  * Government Data Sources:
@@ -31,7 +30,7 @@ class GovernmentAPIService {
    */
   async fetchDWLRStations(state = null, district = null) {
     try {
-      console.log('📡 Fetching DWLR stations from CGWB...');
+      console.log('ðŸ“¡ Fetching DWLR stations from CGWB...');
       
       // CGWB Open Data Portal endpoint
       // Note: Replace with actual endpoint when available
@@ -44,14 +43,14 @@ class GovernmentAPIService {
       const response = await this.makeRequest(url);
       
       if (response && response.data) {
-        console.log(`✅ Fetched ${response.data.length} DWLR stations`);
+        console.log(`âœ… Fetched ${response.data.length} DWLR stations`);
         return response.data.map(station => this.transformCGWBStation(station));
       }
       
       throw new Error('No data received from CGWB');
     } catch (error) {
-      console.error('❌ Error fetching CGWB data:', error.message);
-      console.log('ℹ️  Using fallback data');
+      console.error('âŒ Error fetching CGWB data:', error.message);
+      console.log('â„¹ï¸  Using fallback data');
       return null;
     }
   }
@@ -61,7 +60,7 @@ class GovernmentAPIService {
    */
   async fetchWaterLevelData(stationId, days = 30) {
     try {
-      console.log(`📊 Fetching water level data for station: ${stationId}`);
+      console.log(`ðŸ“Š Fetching water level data for station: ${stationId}`);
       
       const url = `${this.CGWB_URL}/api/water-levels/${stationId}?days=${days}`;
       const response = await this.makeRequest(url);
@@ -76,7 +75,7 @@ class GovernmentAPIService {
       
       return null;
     } catch (error) {
-      console.error(`❌ Error fetching water level data:`, error.message);
+      console.error(`âŒ Error fetching water level data:`, error.message);
       return null;
     }
   }
@@ -86,7 +85,7 @@ class GovernmentAPIService {
    */
   async fetchRainfallData(state, district, year) {
     try {
-      console.log(`🌧️  Fetching rainfall data for ${district}, ${state}`);
+      console.log(`ðŸŒ§ï¸  Fetching rainfall data for ${district}, ${state}`);
       
       const headers = {};
       if (this.IMD_API_KEY) {
@@ -102,7 +101,7 @@ class GovernmentAPIService {
       
       return null;
     } catch (error) {
-      console.error('❌ Error fetching rainfall data:', error.message);
+      console.error('âŒ Error fetching rainfall data:', error.message);
       return null;
     }
   }
@@ -112,7 +111,7 @@ class GovernmentAPIService {
    */
   async fetchWaterQualityData(stationId) {
     try {
-      console.log(`🧪 Fetching water quality data for station: ${stationId}`);
+      console.log(`ðŸ§ª Fetching water quality data for station: ${stationId}`);
       
       const url = `${this.CGWB_URL}/api/water-quality/${stationId}`;
       const response = await this.makeRequest(url);
@@ -131,7 +130,7 @@ class GovernmentAPIService {
       
       return null;
     } catch (error) {
-      console.error('❌ Error fetching water quality data:', error.message);
+      console.error('âŒ Error fetching water quality data:', error.message);
       return null;
     }
   }
@@ -141,7 +140,7 @@ class GovernmentAPIService {
    */
   async fetchStateStatistics(state) {
     try {
-      console.log(`📈 Fetching statistics for state: ${state}`);
+      console.log(`ðŸ“ˆ Fetching statistics for state: ${state}`);
       
       const url = `${this.WRIS_URL}/api/state-stats/${state}`;
       const headers = {};
@@ -164,7 +163,7 @@ class GovernmentAPIService {
       
       return null;
     } catch (error) {
-      console.error('❌ Error fetching state statistics:', error.message);
+      console.error('âŒ Error fetching state statistics:', error.message);
       return null;
     }
   }
@@ -174,7 +173,7 @@ class GovernmentAPIService {
    */
   async fetchDroughtData() {
     try {
-      console.log('🏜️  Fetching drought monitoring data...');
+      console.log('ðŸœï¸  Fetching drought monitoring data...');
       
       const url = `${this.WRIS_URL}/api/drought-monitor`;
       const response = await this.makeRequest(url);
@@ -191,7 +190,7 @@ class GovernmentAPIService {
       
       return null;
     } catch (error) {
-      console.error('❌ Error fetching drought data:', error.message);
+      console.error('âŒ Error fetching drought data:', error.message);
       return null;
     }
   }
@@ -220,8 +219,8 @@ class GovernmentAPIService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-      const data = await response.json();
-      return data;
+  const data = await response.json();
+  return { data };
     } catch (error) {
       clearTimeout(timeout);
       

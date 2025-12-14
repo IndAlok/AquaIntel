@@ -1,5 +1,4 @@
-// components/WaterLevelChart.jsx
-// Chart component for water level visualization using Victory Native
+﻿// Chart component for water level visualization using Victory Native
 
 import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';

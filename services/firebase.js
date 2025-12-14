@@ -1,70 +1,127 @@
-// services/firebase.js
-// Firebase configuration and initialization for authentication and database
-
-import { initializeApp } from 'firebase/app';
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+﻿import { initializeApp, getApps, getApp } from 'firebase/app';
+import {
+  getAuth,
+  initializeAuth,
+  getReactNativePersistence,
+  browserLocalPersistence,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithCredential,
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
-
-// Firebase configuration from environment variables
-// Priority: 1. Constants.expoConfig.extra (works in builds)
-//          2. process.env (works in development)
+import { Platform } from 'react-native';
 
 const firebaseConfig = {
   apiKey: Constants.expoConfig?.extra?.firebaseApiKey || process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
-  authDomain: Constants.expoConfig?.extra?.firebaseAuthDomain || process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: Constants.expoConfig?.extra?.firebaseProjectId || process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: Constants.expoConfig?.extra?.firebaseStorageBucket || process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: Constants.expoConfig?.extra?.firebaseMessagingSenderId || process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: Constants.expoConfig?.extra?.firebaseAppId || process.env.EXPO_PUBLIC_FIREBASE_APP_ID
+  authDomain:
+    Constants.expoConfig?.extra?.firebaseAuthDomain || process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId:
+    Constants.expoConfig?.extra?.firebaseProjectId || process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket:
+    Constants.expoConfig?.extra?.firebaseStorageBucket ||
+    process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId:
+    Constants.expoConfig?.extra?.firebaseMessagingSenderId ||
+    process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: Constants.expoConfig?.extra?.firebaseAppId || process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Validate Firebase configuration
-const validateConfig = () => {
-  console.log('🔍 Debugging Firebase Config:');
-  console.log('  Constants.expoConfig.extra:', Constants.expoConfig?.extra ? 'EXISTS' : 'MISSING');
-  console.log('  firebaseApiKey from extra:', Constants.expoConfig?.extra?.firebaseApiKey);
-  console.log('  firebaseApiKey from process.env:', process.env.EXPO_PUBLIC_FIREBASE_API_KEY);
-  console.log('  Final firebaseConfig:', {
-    apiKey: firebaseConfig.apiKey ? '***' + firebaseConfig.apiKey.slice(-4) : 'MISSING',
-    authDomain: firebaseConfig.authDomain || 'MISSING',
-    projectId: firebaseConfig.projectId || 'MISSING'
-  });
-  
-  const requiredKeys = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
-  const missingKeys = requiredKeys.filter(key => !firebaseConfig[key]);
-  
-  if (missingKeys.length > 0) {
-    console.error('❌ FIREBASE CONFIGURATION ERROR');
-    console.error('Missing configuration fields:', missingKeys);
-    console.error('\n📝 IMPORTANT: Environment variables are bundled at BUILD TIME!');
-    console.error('📦 If you updated .env after building, you must REBUILD the app.');
-    console.error('🔧 Run: npx eas build -p android --profile preview');
-    
-    throw new Error('Firebase configuration incomplete. Rebuild the app after updating .env file.');
+const requiredConfigKeys = [
+  'apiKey',
+  'authDomain',
+  'projectId',
+  'storageBucket',
+  'messagingSenderId',
+  'appId',
+];
+const missingKeys = requiredConfigKeys.filter((key) => !firebaseConfig[key]);
+let firebaseDisabled = missingKeys.length > 0;
+
+let app = null;
+let auth = null;
+let db = null;
+let storage = null;
+let googleProvider = null;
+
+if (!firebaseDisabled) {
+  try {
+    // Initialize app only once
+    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+
+    // Initialize auth based on platform
+    if (Platform.OS === 'web') {
+      // On web, use getAuth which handles persistence automatically
+      auth = getAuth(app);
+    } else {
+      // On native, use initializeAuth with AsyncStorage persistence
+      try {
+        auth = initializeAuth(app, {
+          persistence: getReactNativePersistence(AsyncStorage),
+        });
+      } catch (e) {
+        // If already initialized, get existing instance
+        auth = getAuth(app);
+      }
+    }
+
+    // Initialize Google Auth Provider
+    googleProvider = new GoogleAuthProvider();
+    googleProvider.addScope('profile');
+    googleProvider.addScope('email');
+
+    try {
+      db = getFirestore(app);
+    } catch (e) {
+      db = null;
+    }
+
+    try {
+      storage = getStorage(app);
+    } catch (e) {
+      storage = null;
+    }
+  } catch (e) {
+    console.error('Firebase initialization error:', e);
+    firebaseDisabled = true;
   }
-  
-  console.log('✅ Firebase config validation passed');
+}
+
+const signInWithGoogleWeb = async () => {
+  if (!auth) {
+    throw new Error('Firebase Auth not initialized');
+  }
+  if (!googleProvider) {
+    throw new Error('Google Provider not initialized');
+  }
+
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    return result;
+  } catch (error) {
+    console.error('signInWithPopup error:', error.code, error.message);
+    throw error;
+  }
 };
 
-// Validate before initializing
-validateConfig();
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Auth with AsyncStorage persistence
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
-});
-
-// Initialize other Firebase services
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-
-console.log('✅ Firebase initialized successfully with AsyncStorage persistence');
-console.log('📊 Project ID:', firebaseConfig.projectId);
+const signInWithGoogleToken = async (idToken) => {
+  if (!auth) {
+    throw new Error('Firebase not initialized');
+  }
+  const credential = GoogleAuthProvider.credential(idToken);
+  return signInWithCredential(auth, credential);
+};
 
 export default app;
+export {
+  auth,
+  db,
+  storage,
+  firebaseDisabled,
+  googleProvider,
+  signInWithGoogleWeb,
+  signInWithGoogleToken,
+  GoogleAuthProvider,
+};

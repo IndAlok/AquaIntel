@@ -1,8 +1,7 @@
-// screens/main/ProfileScreen.jsx
-// User profile screen with account management
+﻿// User profile screen with account management
 
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Platform } from 'react-native';
 import {
   Text,
   Avatar,
@@ -14,6 +13,7 @@ import {
   useTheme,
   Portal,
   Dialog,
+  Snackbar,
 } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
@@ -23,6 +23,9 @@ const ProfileScreen = () => {
   const theme = useTheme();
   const { user, logout } = useAuth();
   const [editDialogVisible, setEditDialogVisible] = useState(false);
+  const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
+  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [displayName, setDisplayName] = useState(user?.displayName || '');
 
   const profileStats = [
@@ -65,27 +68,18 @@ const ProfileScreen = () => {
   };
 
   const handleSaveProfile = () => {
-    // TODO: Implement profile update
     setEditDialogVisible(false);
-    Alert.alert('Success', 'Profile updated successfully!');
+    setSnackbarMessage('Profile updated successfully!');
+    setSnackbarVisible(true);
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-          },
-        },
-      ],
-      { cancelable: true }
-    );
+    setLogoutDialogVisible(true);
+  };
+
+  const confirmLogout = async () => {
+    setLogoutDialogVisible(false);
+    await logout();
   };
 
   return (
@@ -102,18 +96,20 @@ const ProfileScreen = () => {
               label={user?.displayName?.substring(0, 2).toUpperCase() || 'U'}
               style={{ backgroundColor: theme.colors.primary }}
             />
-            <Text variant="headlineMedium" style={[styles.name, { color: theme.colors.onPrimaryContainer }]}>
+            <Text
+              variant="headlineMedium"
+              style={[styles.name, { color: theme.colors.onPrimaryContainer }]}
+            >
               {user?.displayName || 'User'}
             </Text>
-            <Text variant="bodyMedium" style={{ color: theme.colors.onPrimaryContainer, opacity: 0.8 }}>
+            <Text
+              variant="bodyMedium"
+              style={{ color: theme.colors.onPrimaryContainer, opacity: 0.8 }}
+            >
               {user?.email}
             </Text>
             <View style={styles.verifiedBadge}>
-              <MaterialCommunityIcons
-                name="shield-check"
-                size={20}
-                color={theme.colors.tertiary}
-              />
+              <MaterialCommunityIcons name="shield-check" size={20} color={theme.colors.tertiary} />
               <Text variant="labelMedium" style={{ color: theme.colors.tertiary, marginLeft: 4 }}>
                 Verified Account
               </Text>
@@ -128,15 +124,17 @@ const ProfileScreen = () => {
           {profileStats.map((stat, index) => (
             <Card key={index} style={styles.statCard}>
               <Card.Content style={styles.statContent}>
-                <MaterialCommunityIcons
-                  name={stat.icon}
-                  size={28}
-                  color={theme.colors.primary}
-                />
-                <Text variant="headlineSmall" style={[styles.statValue, { color: theme.colors.onSurface }]}>
+                <MaterialCommunityIcons name={stat.icon} size={28} color={theme.colors.primary} />
+                <Text
+                  variant="headlineSmall"
+                  style={[styles.statValue, { color: theme.colors.onSurface }]}
+                >
                   {stat.value}
                 </Text>
-                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}>
+                <Text
+                  variant="bodySmall"
+                  style={{ color: theme.colors.onSurfaceVariant, textAlign: 'center' }}
+                >
                   {stat.label}
                 </Text>
               </Card.Content>
@@ -155,7 +153,10 @@ const ProfileScreen = () => {
         >
           <Card style={styles.sectionCard}>
             <Card.Content>
-              <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.primary }]}>
+              <Text
+                variant="titleMedium"
+                style={[styles.sectionTitle, { color: theme.colors.primary }]}
+              >
                 {section.title}
               </Text>
               {section.items.map((item, itemIndex) => (
@@ -223,7 +224,30 @@ const ProfileScreen = () => {
             <Button onPress={handleSaveProfile}>Save</Button>
           </Dialog.Actions>
         </Dialog>
+
+        {/* Logout Confirmation Dialog */}
+        <Dialog visible={logoutDialogVisible} onDismiss={() => setLogoutDialogVisible(false)}>
+          <Dialog.Title>Logout</Dialog.Title>
+          <Dialog.Content>
+            <Text>Are you sure you want to logout?</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setLogoutDialogVisible(false)}>Cancel</Button>
+            <Button onPress={confirmLogout} textColor={theme.colors.error}>
+              Logout
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
       </Portal>
+
+      {/* Snackbar for success messages */}
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+        duration={3000}
+      >
+        {snackbarMessage}
+      </Snackbar>
     </ScrollView>
   );
 };

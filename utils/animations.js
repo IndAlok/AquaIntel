@@ -1,7 +1,9 @@
 // utils/animations.js
 // Animation presets and utilities for AquaIntel
 
-import { Animated, Easing } from 'react-native';
+import { Animated, Easing, Platform } from 'react-native';
+
+const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
 // Common animation presets
 export const animations = {
@@ -108,7 +110,7 @@ export const createFadeAnimation = (animatedValue, toValue = 1, duration = 300) 
     toValue,
     duration,
     easing: Easing.ease,
-    useNativeDriver: true,
+    useNativeDriver: USE_NATIVE_DRIVER,
   });
 };
 
@@ -124,7 +126,7 @@ export const createSlideAnimation = (animatedValue, toValue = 0, duration = 300)
     toValue,
     friction: 8,
     tension: 40,
-    useNativeDriver: true,
+    useNativeDriver: USE_NATIVE_DRIVER,
   });
 };
 
@@ -140,7 +142,7 @@ export const createScaleAnimation = (animatedValue, toValue = 1, duration = 300)
     toValue,
     friction: 6,
     tension: 40,
-    useNativeDriver: true,
+    useNativeDriver: USE_NATIVE_DRIVER,
   });
 };
 
@@ -157,13 +159,13 @@ export const createPulseAnimation = (animatedValue, duration = 1000) => {
         toValue: 1.1,
         duration: duration / 2,
         easing: Easing.ease,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       }),
       Animated.timing(animatedValue, {
         toValue: 1,
         duration: duration / 2,
         easing: Easing.ease,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       }),
     ])
   );
@@ -179,27 +181,27 @@ export const createShakeAnimation = (animatedValue) => {
     Animated.timing(animatedValue, {
       toValue: -10,
       duration: 50,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     }),
     Animated.timing(animatedValue, {
       toValue: 10,
       duration: 50,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     }),
     Animated.timing(animatedValue, {
       toValue: -10,
       duration: 50,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     }),
     Animated.timing(animatedValue, {
       toValue: 10,
       duration: 50,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     }),
     Animated.timing(animatedValue, {
       toValue: 0,
       duration: 50,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     }),
   ]);
 };
@@ -219,7 +221,7 @@ export const createStaggerAnimation = (animatedValues, staggerDelay = 100, durat
         toValue: 1,
         duration,
         easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       })
     )
   );
@@ -237,7 +239,7 @@ export const createRotationAnimation = (animatedValue, duration = 1000) => {
       toValue: 1,
       duration,
       easing: Easing.linear,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     })
   );
 };
@@ -253,13 +255,13 @@ export const createBounceAnimation = (animatedValue) => {
       toValue: -20,
       duration: 200,
       easing: Easing.out(Easing.quad),
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     }),
     Animated.timing(animatedValue, {
       toValue: 0,
       duration: 200,
       easing: Easing.bounce,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     }),
   ]);
 };

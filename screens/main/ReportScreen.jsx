@@ -1,5 +1,4 @@
-// screens/main/ReportScreen.jsx
-// Community reporting and feedback screen - FULLY FIXED
+﻿// Community reporting and feedback screen - FULLY FIXED
 
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';

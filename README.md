@@ -1,361 +1,121 @@
 <div align="center">
 
-# 🌊 AquaIntel
+# AquaIntel
 
-### Real-Time Groundwater Intelligence Platform
-
-[![Smart India Hackathon](https://img.shields.io/badge/SIH-2025-orange)](https://sih.gov.in/)
-[![React Native](https://img.shields.io/badge/React%20Native-0.73-61dafb)](https://reactnative.dev/)
-[![Expo](https://img.shields.io/badge/Expo-~50.0-000020)](https://expo.dev/)
-[![Firebase](https://img.shields.io/badge/Firebase-11.10-orange)](https://firebase.google.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-
-**For Ministry of Jal Shakti, Government of India**
-
-[Features](#-features) • [Installation](#-installation) • [Demo](#-demo) • [Tech Stack](#-technology-stack) • [Contributing](#-contributing)
-
-![AquaIntel Banner](https://via.placeholder.com/1200x400/FF9933/FFFFFF?text=AquaIntel+-+Groundwater+Intelligence)
+Groundwater intelligence for India (Expo React Native)
 
 </div>
 
 ---
 
-## 🌊 Overview
+## Overview
 
-AquaIntel is a sophisticated mobile application designed for real-time evaluation, analysis, and visualization of India's groundwater resources. Built for Smart India Hackathon 2025, it provides comprehensive insights from 5,260+ Digital Water Level Recorder (DWLR) stations across India.
+AquaIntel is an Expo-based React Native app that visualizes groundwater and rainfall data for India. It can use live data from the National Water Informatics Centre (NWIC) when enabled, and falls back to high-fidelity mock data for offline/demo use. Authentication and analytics are optional and powered by Firebase when configured.
 
-## ✨ Features
+> Deployment note: This is a mobile-first Expo project. Publish via Expo (EAS/Expo Go) or native builds. Netlify/Vercel are not appropriate targets unless you intentionally build the experimental Expo web bundle.
 
-### 📊 Dashboard
-- Real-time overview of all DWLR stations
-- Active, critical, and inactive station metrics
-- Monsoon status tracking
-- Advanced search and filtering capabilities
-- Quick station status assessment
+## What works today
 
-### 🗺️ Interactive Map
-- Geographic visualization of all stations
-- Color-coded markers based on water level risk
-- Station clustering for better performance
-- Quick access to station details from map
-- Filter stations by status and risk level
+- Dashboard with loading/error/empty states and data-source badges
+- Station list/detail with charts using either NWIC data or mocks
+- Rainfall and groundwater time series (NWIC → fallback)
+- Water quality fetch (NWIC → fallback synthetic values)
+- Derived state stats and drought heuristics (from NWIC aggregates when enabled)
+- Auth flow (Firebase email/password) that gracefully disables if config is missing
 
-### 📈 Station Details
-- Comprehensive water level data
-- Interactive charts and gauges
-- 2-year historical data visualization
-- Risk assessment with AI insights
-- Real-time alerts and recommendations
-- Multiple time range views (30d, 90d, 1 year)
+Simulated/placeholder pieces:
 
-### 🔮 Predictive Analytics
-- AI-powered water level forecasting
-- 30-day to 6-month predictions
-- Confidence intervals for predictions
-- Monthly forecast summaries
-- Trend analysis and risk predictions
-- Machine learning-based insights
+- AI predictions and risk insights are mock-generated
+- Notifications/offline sync are not yet implemented
+- Community reporting UI exists but uses mock flows
 
-### 📝 Community Reporting
-- Report station issues
-- Submit app feedback
-- Track community impact
-- Email notifications for updates
-- Category-based reporting system
+## Tech stack
 
-### ⚙️ Settings & Profile
-- User profile management
-- Notification preferences
-- Data sync controls
-- Cache management
-- App information and credits
+- React Native 0.81 / Expo SDK 54
+- React Navigation, React Native Paper, Victory Native, React Native Maps
+- Firebase (Auth optional) with graceful noop when not configured
+- NWIC datastore_search (public) via `services/nwicService.js` (uses hardcoded resource IDs; no HTML scraping to keep native/web compatibility)
+- Mock data under `data/` for safe demos
 
-## 🛠️ Technology Stack
+## Environment setup
 
-- **Framework:** React Native with Expo
-- **UI Library:** React Native Paper (Material Design 3)
-- **Charts:** Victory Native
-- **Maps:** React Native Maps
-- **Navigation:** React Navigation
-- **Authentication:** Firebase Auth
-- **Database:** Firebase Firestore
-- **State Management:** React Context API
-- **Icons:** Material Community Icons
-
-## 📦 Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/IndAlok/AquaIntel.git
-   cd AquaIntel
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Configure Firebase:**
-   - Create a Firebase project at https://console.firebase.google.com
-   - Enable Authentication (Email/Password)
-   - Enable Firestore Database
-   - Copy your Firebase config to `services/firebase.js`
-
-4. **Run the application:**
-   ```bash
-   # Start the development server
-   npm start
-
-   # Run on Android
-   npm run android
-
-   # Run on iOS
-   npm run ios
-
-   # Run on Web
-   npm run web
-   ```
-
-## � Building APK for Testing
-
-**Don't know how to build an APK?** No problem! You don't need Android Studio or complex setup.
-
-### Quick Build (3 commands)
-```bash
-npm install -g eas-cli
-eas login
-eas build -p android --profile preview
-```
-
-### OR Test Without Building
-```bash
-npx expo start
-# Then scan QR code with Expo Go app on your phone
-```
-
-**📖 Complete Guide:** See [QUICK_BUILD.md](QUICK_BUILD.md) or [BUILD_APK_GUIDE.md](BUILD_APK_GUIDE.md) for detailed instructions.
-
-## �🔧 Configuration
-
-### Firebase Setup
-
-Replace the configuration in `services/firebase.js` with your actual Firebase credentials:
-
-```javascript
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-```
-
-### Theme Customization
-
-Modify `constants/theme.js` to customize colors and styling:
-- Primary color (Saffron from Indian flag)
-- Secondary color (Blue from Ashoka Chakra)
-- Success/Warning/Error colors
-- Typography and spacing
-
-## 📁 Project Structure
+Create a `.env` (gitignored) using the template below. Leave values blank if you don’t want that service enabled.
 
 ```
-AquaIntel/
-├── assets/              # Images and static assets
-├── components/          # Reusable UI components
-│   ├── AppHeader.jsx
-│   ├── DataCard.jsx
-│   ├── WaterLevelChart.jsx
-│   ├── GaugeIndicator.jsx
-│   └── ThemedButton.jsx
-├── constants/           # Theme and configuration
-│   └── theme.js
-├── data/               # Mock data generators
-│   ├── mockStations.js
-│   ├── mockTimeSeriesData.js
-│   ├── mockRainfallData.js
-│   └── mockPredictions.js
-├── navigation/         # Navigation configuration
-│   ├── AppNavigator.jsx
-│   ├── AuthNavigator.jsx
-│   └── RootNavigator.jsx
-├── screens/           # Application screens
-│   ├── auth/         # Authentication screens
-│   └── main/         # Main app screens
-├── services/         # External services
-│   └── firebase.js
-├── store/           # State management
-│   └── AuthContext.js
-└── App.js          # Application entry point
+# Firebase (optional)
+EXPO_PUBLIC_FIREBASE_API_KEY=
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+EXPO_PUBLIC_FIREBASE_APP_ID=
+EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID=
+
+# Demo login (optional)
+EXPO_PUBLIC_DEMO_EMAIL=
+EXPO_PUBLIC_DEMO_PASSWORD=
+
+# NWIC data (set to true to hit live API)
+EXPO_PUBLIC_USE_REAL_DATA=false
+EXPO_PUBLIC_NWIC_API_URL=https://nwdp.nwic.gov.in/api/action/datastore_search
+EXPO_PUBLIC_NWIC_STATIONS_RESOURCE_ID=
+EXPO_PUBLIC_NWIC_GW_LEVEL_TS_RESOURCE_ID=
+EXPO_PUBLIC_NWIC_RAINFALL_RESOURCE_ID=
+EXPO_PUBLIC_NWIC_WATER_QUALITY_RESOURCE_ID=
+EXPO_PUBLIC_NWIC_STATE_STATS_RESOURCE_ID=
+EXPO_PUBLIC_NWIC_DROUGHT_RESOURCE_ID=
+EXPO_PUBLIC_NWIC_PREDICTION_RESOURCE_ID=SIMULATED
 ```
 
-## 🎨 Design Philosophy
+Security defaults:
 
-- **Material Design 3:** Modern, accessible UI components
-- **Indian Flag Colors:** Saffron, White, Green, and Blue (Ashoka Chakra)
-- **Responsive Design:** Optimized for various screen sizes
-- **Accessibility:** High contrast, readable fonts, icon labels
-- **Performance:** Efficient data loading and rendering
+- `.env` and `.env.local` are already gitignored.
+- The repo contains **no live keys**; supply your own before production.
 
-## 📊 Mock Data
-
-The application uses sophisticated mock data generators to simulate:
-- 100+ DWLR stations across 18 Indian states
-- 2 years of hourly water level data
-- Seasonal variations (monsoon patterns)
-- Rainfall data correlated with groundwater levels
-- AI-powered predictions and risk assessments
-- Real-time alerts and insights
-
-## 🚀 Key Highlights
-
-1. **Comprehensive Coverage:** Data from all major states and aquifer types
-2. **Real-time Updates:** Live monitoring with instant notifications
-3. **Predictive AI:** Machine learning forecasts for proactive management
-4. **Community Driven:** Collaborative reporting and feedback system
-5. **Government Ready:** Built for Ministry of Jal Shakti specifications
-6. **Scalable Architecture:** Ready for production deployment
-
-## 🔐 Authentication
-
-Demo credentials for testing:
-- Email: demo@aquaintel.gov.in
-- Password: demo123456
-
-Or create a new account using the signup flow.
-
-## 📱 Screenshots
-
-<div align="center">
-
-| Dashboard | Map View | Station Details |
-|-----------|----------|-----------------|
-| ![Dashboard](https://via.placeholder.com/250x500/FF9933/FFFFFF?text=Dashboard) | ![Map](https://via.placeholder.com/250x500/138808/FFFFFF?text=Map+View) | ![Details](https://via.placeholder.com/250x500/000080/FFFFFF?text=Station+Details) |
-
-| Forecast | Reports | Settings |
-|----------|---------|----------|
-| ![Forecast](https://via.placeholder.com/250x500/9C27B0/FFFFFF?text=Forecast) | ![Reports](https://via.placeholder.com/250x500/FF9800/FFFFFF?text=Reports) | ![Settings](https://via.placeholder.com/250x500/2196F3/FFFFFF?text=Settings) |
-
-</div>
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js (v16+)
-- npm or yarn
-- Expo CLI
-- Android Studio or Xcode (optional)
-
-### Installation
+## Running locally
 
 ```bash
-# Clone the repository
-git clone https://github.com/IndAlok/AquaIntel.git
-cd AquaIntel
-
-# Install dependencies
 npm install
-
-# Start the development server
-npm start
-
-# Build APK locally (ARM64-v8a only)
-npm run build:local
-
-# Build with EAS (ARM64-v8a only, when available)
-npm run build:android
+npm start           # starts Expo dev server
+npm run android     # open on Android emulator/device
+npm run web         # experimental web build (not production hardened)
 ```
 
-**Note:** All builds are hardcoded for **ARM64-v8a architecture only** for optimal size and performance.
+## Deployment guidance
 
-**👉 For detailed setup instructions, see [SETUP_GUIDE.md](SETUP_GUIDE.md)**
+- **Recommended:** Use Expo EAS to build/publish mobile apps. This project is optimized for devices, not static hosting.
+- **Not recommended:** Netlify/Vercel static hosting. Expo web can be built, but React Native-specific modules (maps, reanimated, native Firebase) are not tuned for a production web experience.
 
-## 🎯 Roadmap
+## Data sources and fallbacks
 
-- [x] Core dashboard and data visualization
-- [x] Interactive maps with station markers
-- [x] AI-powered predictive analytics
-- [x] Community reporting system
-- [ ] Real-time notifications
-- [ ] Offline mode support
-- [ ] Multi-language support (Hindi, regional languages)
-- [ ] Integration with live DWLR API
-- [ ] Advanced ML models for predictions
-- [ ] Export and sharing features
+- Primary live data: NWIC `datastore_search` (public). Configurable via `.env`.
+- Secondary legacy APIs: placeholders in `governmentAPI.js` (only used if enabled).
+- Fallback: Mock datasets in `data/` keep the app usable offline or without credentials.
 
-## 🤝 Contributing
+## Project structure (high level)
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+```
+components/        Reusable UI
+screens/           Auth + main feature screens
+services/          Data adapters (nwicService, dataService, firebase, etc.)
+data/              Mock datasets
+store/             Context providers (auth/theme)
+utils/             Helpers (animations, theme)
+```
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## Roadmap (truthful)
 
-## 🐛 Bug Reports & Feature Requests
+- [x] NWIC integration with national aggregation + graceful fallbacks
+- [x] Mock-friendly dashboards and station detail views
+- [ ] Harden Expo web or provide dedicated web client
+- [ ] Real push notifications and offline cache/sync
+- [ ] Replace mock AI predictions with a real model/service
+- [ ] Expand NWIC resource coverage list and caching window
 
-Found a bug or have a feature request? Please create an issue using our templates:
-- [🐛 Bug Report](.github/ISSUE_TEMPLATE/bug_report.yml)
-- [✨ Feature Request](.github/ISSUE_TEMPLATE/feature_request.yml)
+## Contributing
 
-## 📄 License
+Pull requests are welcome. Please avoid committing secrets; use `.env` locally and keep keys out of Git history.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## License
 
-**Additional Terms:** This software is developed for the Ministry of Jal Shakti, Government of India, as part of Smart India Hackathon 2025.
-
-## 👥 Team
-
-Developed for **Smart India Hackathon 2025**
-
-### Core Technologies
-- React Native & Expo
-- React Native Paper (Material Design 3)
-- Firebase (Auth & Firestore)
-- Victory Native (Charts)
-- React Navigation
-
-## 📞 Support & Contact
-
-- 📧 Email: support@aquaintel.gov.in
-- 🌐 Website: https://aquaintel.gov.in
-- 💬 Issues: [GitHub Issues](https://github.com/IndAlok/AquaIntel/issues)
-
-## 🙏 Acknowledgments
-
-- **Ministry of Jal Shakti**, Government of India
-- **Smart India Hackathon 2025** organizers
-- **Central Ground Water Board (CGWB)** for domain knowledge
-- All **DWLR station operators** across India
-- Open source community for amazing tools
-
-## ⭐ Star History
-
-If you find this project useful, please consider giving it a star! ⭐
-
-## 📊 Project Stats
-
-![GitHub stars](https://img.shields.io/github/stars/IndAlok/AquaIntel?style=social)
-![GitHub forks](https://img.shields.io/github/forks/IndAlok/AquaIntel?style=social)
-![GitHub issues](https://img.shields.io/github/issues/IndAlok/AquaIntel)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/IndAlok/AquaIntel)
-![GitHub last commit](https://img.shields.io/github/last-commit/IndAlok/AquaIntel)
-![GitHub repo size](https://img.shields.io/github/repo-size/IndAlok/AquaIntel)
-
----
-
-<div align="center">
-
-### 🌊 Made with ❤️ for India's Water Future 💧
-
-**"जल ही जीवन है" - Water is Life**
-
-[![Ministry of Jal Shakti](https://img.shields.io/badge/Ministry%20of-Jal%20Shakti-orange)](https://jalshakti.gov.in/)
-[![Government of India](https://img.shields.io/badge/Government%20of-India-138808)](https://india.gov.in/)
-
-</div>
+MIT. See `LICENSE`.

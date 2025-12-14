@@ -1,5 +1,4 @@
-// screens/main/AIChat.jsx
-// Full-screen AI Assistant Chat Interface
+﻿// Full-screen AI Assistant Chat Interface
 
 import React, { useState, useRef, useEffect } from 'react';
 import {
@@ -22,6 +21,7 @@ import {
 } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
+import Markdown from 'react-native-markdown-display';
 import geminiAI from '../../services/geminiAI';
 import { useAuth } from '../../store/AuthContext';
 
@@ -36,10 +36,26 @@ const AIChat = () => {
 
   // Quick action suggestions
   const quickActions = [
-    { icon: 'water', text: 'Water Level Trends', query: 'Show me the recent water level trends in my area' },
-    { icon: 'weather-pouring', text: 'Rainfall Data', query: 'What is the rainfall prediction for this week?' },
-    { icon: 'sprout', text: 'Irrigation Tips', query: 'Give me irrigation tips for current season' },
-    { icon: 'shield-check', text: 'Water Quality', query: 'How is the water quality in my region?' },
+    {
+      icon: 'water',
+      text: 'Water Level Trends',
+      query: 'Show me the recent water level trends in my area',
+    },
+    {
+      icon: 'weather-pouring',
+      text: 'Rainfall Data',
+      query: 'What is the rainfall prediction for this week?',
+    },
+    {
+      icon: 'sprout',
+      text: 'Irrigation Tips',
+      query: 'Give me irrigation tips for current season',
+    },
+    {
+      icon: 'shield-check',
+      text: 'Water Quality',
+      query: 'How is the water quality in my region?',
+    },
   ];
 
   useEffect(() => {
@@ -66,7 +82,7 @@ const AIChat = () => {
       setMessages([
         {
           id: Date.now().toString(),
-          text: `Namaste ${userContext.name}! 🙏\n\nI'm your AquaIntel AI Assistant, here to help you understand groundwater data, rainfall patterns, and water management.\n\nHow can I assist you today?`,
+          text: `Namaste ${userContext.name}! ðŸ™\n\nI'm your AquaIntel AI Assistant, here to help you understand groundwater data, rainfall patterns, and water management.\n\nHow can I assist you today?`,
           sender: 'ai',
           timestamp: new Date(),
         },
@@ -76,7 +92,7 @@ const AIChat = () => {
       setMessages([
         {
           id: Date.now().toString(),
-          text: 'Sorry, I\'m having trouble connecting right now. Please try again later.',
+          text: "Sorry, I'm having trouble connecting right now. Please try again later.",
           sender: 'ai',
           timestamp: new Date(),
           isError: true,
@@ -136,9 +152,46 @@ const AIChat = () => {
     setInputText(query);
   };
 
+  const mdStyles = {
+    body: { color: theme.colors.onSurfaceVariant, fontSize: 14 },
+    heading1: { color: theme.colors.onSurface, fontWeight: 'bold', fontSize: 20, marginBottom: 8 },
+    heading2: { color: theme.colors.onSurface, fontWeight: 'bold', fontSize: 18, marginBottom: 6 },
+    heading3: { color: theme.colors.onSurface, fontWeight: 'bold', fontSize: 16, marginBottom: 4 },
+    strong: { fontWeight: 'bold', color: theme.colors.onSurface },
+    em: { fontStyle: 'italic' },
+    bullet_list: { marginVertical: 4 },
+    ordered_list: { marginVertical: 4 },
+    list_item: { marginVertical: 2 },
+    link: { color: theme.colors.primary },
+    blockquote: {
+      backgroundColor: theme.colors.surfaceVariant,
+      borderLeftWidth: 3,
+      borderLeftColor: theme.colors.primary,
+      paddingLeft: 12,
+      marginVertical: 8,
+    },
+    code_inline: {
+      backgroundColor: theme.colors.surfaceVariant,
+      paddingHorizontal: 4,
+      borderRadius: 4,
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    },
+    fence: {
+      backgroundColor: theme.colors.surfaceVariant,
+      padding: 12,
+      borderRadius: 8,
+      marginVertical: 8,
+    },
+  };
+
   const renderMessage = (message, index) => {
     const isUser = message.sender === 'user';
     const isError = message.isError;
+    const txtColor = isUser
+      ? theme.colors.onPrimaryContainer
+      : isError
+        ? theme.colors.onErrorContainer
+        : theme.colors.onSurfaceVariant;
 
     return (
       <Animatable.View
@@ -162,39 +215,26 @@ const AIChat = () => {
               backgroundColor: isUser
                 ? theme.colors.primaryContainer
                 : isError
-                ? theme.colors.errorContainer
-                : theme.colors.surfaceVariant,
+                  ? theme.colors.errorContainer || '#FFCDD2'
+                  : theme.colors.surfaceVariant,
             },
           ]}
         >
           <Card.Content style={styles.messageContent}>
-            <Text
-              variant="bodyMedium"
-              style={{
-                color: isUser
-                  ? theme.colors.onPrimaryContainer
-                  : isError
-                  ? theme.colors.onErrorContainer
-                  : theme.colors.onSurfaceVariant,
-              }}
-            >
-              {message.text}
-            </Text>
+            {isUser ? (
+              <Text variant="bodyMedium" style={{ color: txtColor }}>
+                {message.text}
+              </Text>
+            ) : (
+              <Markdown style={{ ...mdStyles, body: { ...mdStyles.body, color: txtColor } }}>
+                {message.text}
+              </Markdown>
+            )}
             <Text
               variant="labelSmall"
-              style={[
-                styles.timestamp,
-                {
-                  color: isUser
-                    ? theme.colors.onPrimaryContainer
-                    : theme.colors.onSurfaceVariant,
-                },
-              ]}
+              style={[styles.timestamp, { color: txtColor, opacity: 0.7 }]}
             >
-              {message.timestamp.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
+              {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </Text>
           </Card.Content>
         </Card>
@@ -241,10 +281,7 @@ const AIChat = () => {
                     style={[styles.avatar, { backgroundColor: theme.colors.primary }]}
                   />
                   <Card
-                    style={[
-                      styles.messageCard,
-                      { backgroundColor: theme.colors.surfaceVariant },
-                    ]}
+                    style={[styles.messageCard, { backgroundColor: theme.colors.surfaceVariant }]}
                   >
                     <Card.Content style={styles.messageContent}>
                       <View style={styles.typingDots}>
@@ -414,11 +451,16 @@ const styles = StyleSheet.create({
     padding: 12,
     paddingBottom: Platform.OS === 'ios' ? 24 : 12,
     alignItems: 'center',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    ...(Platform.select({
+      web: { boxShadow: '0 -2px 8px rgba(0,0,0,0.1)' },
+      default: {
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+    }) || {}),
   },
   input: {
     flex: 1,

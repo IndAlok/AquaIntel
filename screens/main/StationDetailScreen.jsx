@@ -1,20 +1,19 @@
-// screens/main/StationDetailScreen.jsx
-// Detailed view of a single DWLR station with charts and analytics
+﻿// Detailed view of a single DWLR station with charts and analytics
 
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import { Text, useTheme, Card, Chip, Divider, List, SegmentedButtons } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import WaterLevelChart from '../../components/WaterLevelChart';
 import GaugeIndicator from '../../components/GaugeIndicator';
 import DataCard from '../../components/DataCard';
-import { getStationById } from '../../data/mockStations';
-import { getRecentTimeSeriesData, getMonthlyAggregateData } from '../../data/mockTimeSeriesData';
-import { getRainfallData } from '../../data/mockRainfallData';
-import { getRiskAssessment, getAIInsights } from '../../data/mockPredictions';
+import dataService from '../../services/dataService';
+import DataSourceBadge from '../../components/DataSourceBadge';
+import { useAppTheme } from '../../store/ThemeContext';
 
 const StationDetailScreen = ({ route }) => {
   const theme = useTheme();
+  const { colors } = useAppTheme();
   const { stationId } = route.params;
   const [station, setStation] = useState(null);
   const [timeSeriesData, setTimeSeriesData] = useState([]);
@@ -22,35 +21,41 @@ const StationDetailScreen = ({ route }) => {
   const [riskAssessment, setRiskAssessment] = useState(null);
   const [aiInsights, setAIInsights] = useState(null);
   const [timeRange, setTimeRange] = useState('30d');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadStationData();
   }, [stationId, timeRange]);
 
-  const loadStationData = () => {
-    const stationData = getStationById(stationId);
-    setStation(stationData);
+  const loadStationData = async () => {
+    setLoading(true);
+    try {
+      const stations = await dataService.getStations();
+      const stationData = stations.find((s) => s.id === stationId);
+      setStation(stationData);
 
-    if (stationData) {
-      // Load different time ranges
-      if (timeRange === '30d') {
-        setTimeSeriesData(getRecentTimeSeriesData(stationId, 30));
-      } else if (timeRange === '90d') {
-        setTimeSeriesData(getRecentTimeSeriesData(stationId, 90));
-      } else {
-        setTimeSeriesData(getMonthlyAggregateData(stationId));
+      if (stationData) {
+        const days = timeRange === '30d' ? 30 : timeRange === '90d' ? 90 : 365;
+        setTimeSeriesData(await dataService.getWaterLevelData(stationId, days));
+        const currentYear = new Date().getFullYear();
+        setRainfallData(
+          await dataService.getRainfallData(stationData.state, stationData.district, currentYear)
+        );
+        setRiskAssessment(await dataService.getRiskAssessment(stationId));
+        setAIInsights(await dataService.getAIInsights(stationId));
       }
-
-      setRainfallData(getRainfallData(stationData.district, 30));
-      setRiskAssessment(getRiskAssessment(stationId));
-      setAIInsights(getAIInsights(stationId));
+    } catch (error) {
+      // Silently handle error
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!station) {
+  if (loading || !station) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading station data...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={{ color: colors.onSurface, marginTop: 16 }}>Loading station data...</Text>
       </View>
     );
   }
@@ -58,19 +63,31 @@ const StationDetailScreen = ({ route }) => {
   const utilizationRate = (station.currentWaterLevel / station.depth) * 100;
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 }}>
+        <DataSourceBadge />
+      </View>
       {/* Station Header */}
-      <Card style={styles.headerCard}>
+      <Card style={[styles.headerCard, { backgroundColor: colors.surface }]}>
         <Card.Content>
           <View style={styles.header}>
             <View style={{ flex: 1 }}>
-              <Text variant="headlineSmall" style={styles.stationName}>
+              <Text
+                variant="headlineSmall"
+                style={[styles.stationName, { color: colors.onSurface }]}
+              >
                 {station.name}
               </Text>
-              <Text variant="bodyMedium" style={styles.stationLocation}>
+              <Text
+                variant="bodyMedium"
+                style={[styles.stationLocation, { color: colors.onSurfaceVariant }]}
+              >
                 {station.district}, {station.state}
               </Text>
-              <Text variant="bodySmall" style={styles.stationId}>
+              <Text
+                variant="bodySmall"
+                style={[styles.stationId, { color: colors.onSurfaceVariant }]}
+              >
                 ID: {station.id}
               </Text>
             </View>
@@ -81,12 +98,20 @@ const StationDetailScreen = ({ route }) => {
                 {
                   backgroundColor:
                     station.status === 'Active'
-                      ? theme.colors.success + '20'
+                      ? '#4CAF5020'
                       : station.status === 'Inactive'
-                      ? theme.colors.error + '20'
-                      : '#FFA726' + '20',
+                        ? '#F4433620'
+                        : '#FFA72620',
                 },
               ]}
+              textStyle={{
+                color:
+                  station.status === 'Active'
+                    ? '#4CAF50'
+                    : station.status === 'Inactive'
+                      ? '#F44336'
+                      : '#FFA726',
+              }}
             >
               {station.status}
             </Chip>
@@ -95,7 +120,7 @@ const StationDetailScreen = ({ route }) => {
       </Card>
 
       {/* Current Status Gauge */}
-      <Card style={styles.card}>
+      <Card style={[styles.card, { backgroundColor: colors.surface }]}>
         <Card.Content>
           <GaugeIndicator
             value={station.currentWaterLevel}
@@ -103,7 +128,10 @@ const StationDetailScreen = ({ route }) => {
             title="Current Water Level"
             unit="meters below ground"
           />
-          <Text variant="bodySmall" style={styles.lastUpdated}>
+          <Text
+            variant="bodySmall"
+            style={[styles.lastUpdated, { color: colors.onSurfaceVariant }]}
+          >
             Last updated: {new Date(station.lastUpdated).toLocaleString()}
           </Text>
         </Card.Content>
@@ -116,32 +144,38 @@ const StationDetailScreen = ({ route }) => {
           value={station.depth}
           unit="m"
           icon="arrow-down"
-          iconColor={theme.colors.primary}
+          iconColor={colors.primary}
         />
         <DataCard
           title="Aquifer Type"
           value={station.aquiferType}
           icon="layers-triple"
-          iconColor="#666"
+          iconColor={colors.onSurfaceVariant}
         />
       </View>
 
       {/* AI Insights & Alerts */}
       {aiInsights && aiInsights.alerts && aiInsights.alerts.length > 0 && (
-        <Card style={[styles.card, styles.alertCard]}>
+        <Card style={[styles.card, styles.alertCard, { backgroundColor: colors.surface }]}>
           <Card.Content>
             <View style={styles.alertHeader}>
-              <MaterialCommunityIcons name="alert" size={24} color={theme.colors.error} />
-              <Text variant="titleMedium" style={[styles.alertTitle, { color: theme.colors.error }]}>
+              <MaterialCommunityIcons name="alert" size={24} color="#F44336" />
+              <Text variant="titleMedium" style={[styles.alertTitle, { color: '#F44336' }]}>
                 Active Alerts
               </Text>
             </View>
             {aiInsights.alerts.map((alert, index) => (
               <View key={index} style={styles.alertItem}>
-                <Text variant="bodyMedium" style={styles.alertMessage}>
+                <Text
+                  variant="bodyMedium"
+                  style={[styles.alertMessage, { color: colors.onSurface }]}
+                >
                   {alert.message}
                 </Text>
-                <Text variant="bodySmall" style={styles.alertAction}>
+                <Text
+                  variant="bodySmall"
+                  style={[styles.alertAction, { color: colors.onSurfaceVariant }]}
+                >
                   Action: {alert.action}
                 </Text>
               </View>
@@ -151,9 +185,9 @@ const StationDetailScreen = ({ route }) => {
       )}
 
       {/* Time Series Chart */}
-      <Card style={styles.card}>
+      <Card style={[styles.card, { backgroundColor: colors.surface }]}>
         <Card.Content>
-          <Text variant="titleMedium" style={styles.chartTitle}>
+          <Text variant="titleMedium" style={[styles.chartTitle, { color: colors.onSurface }]}>
             Water Level Trend
           </Text>
           <SegmentedButtons
@@ -172,32 +206,38 @@ const StationDetailScreen = ({ route }) => {
 
       {/* Risk Assessment */}
       {riskAssessment && (
-        <Card style={styles.card}>
+        <Card style={[styles.card, { backgroundColor: colors.surface }]}>
           <Card.Content>
             <View style={styles.riskHeader}>
-              <Text variant="titleMedium" style={styles.sectionTitle}>
+              <Text
+                variant="titleMedium"
+                style={[styles.sectionTitle, { color: colors.onSurface }]}
+              >
                 Risk Assessment
               </Text>
               <Chip
                 style={{
                   backgroundColor:
                     riskAssessment.riskLevel === 'critical'
-                      ? theme.colors.error + '20'
+                      ? '#F4433620'
                       : riskAssessment.riskLevel === 'high'
-                      ? '#FFA726' + '20'
-                      : riskAssessment.riskLevel === 'moderate'
-                      ? '#FFC107' + '20'
-                      : theme.colors.success + '20',
+                        ? '#FFA72620'
+                        : riskAssessment.riskLevel === 'moderate'
+                          ? '#FFC10720'
+                          : '#4CAF5020',
                 }}
               >
                 {riskAssessment.riskLevel.toUpperCase()}
               </Chip>
             </View>
-            <Text variant="bodyMedium" style={styles.riskScore}>
+            <Text variant="bodyMedium" style={[styles.riskScore, { color: colors.onSurface }]}>
               Risk Score: {riskAssessment.riskScore}/100
             </Text>
             <Divider style={styles.divider} />
-            <Text variant="titleSmall" style={styles.subsectionTitle}>
+            <Text
+              variant="titleSmall"
+              style={[styles.subsectionTitle, { color: colors.onSurface }]}
+            >
               Contributing Factors
             </Text>
             {riskAssessment.factors.map((factor, index) => (
@@ -205,16 +245,18 @@ const StationDetailScreen = ({ route }) => {
                 key={index}
                 title={factor.factor}
                 description={factor.description}
+                titleStyle={{ color: colors.onSurface }}
+                descriptionStyle={{ color: colors.onSurfaceVariant }}
                 left={(props) => (
                   <MaterialCommunityIcons
                     name="circle-medium"
                     size={24}
                     color={
                       factor.impact === 'high'
-                        ? theme.colors.error
+                        ? '#F44336'
                         : factor.impact === 'moderate'
-                        ? '#FFA726'
-                        : theme.colors.success
+                          ? '#FFA726'
+                          : '#4CAF50'
                     }
                   />
                 )}
@@ -226,15 +268,16 @@ const StationDetailScreen = ({ route }) => {
 
       {/* Recommendations */}
       {riskAssessment && riskAssessment.recommendations && (
-        <Card style={styles.card}>
+        <Card style={[styles.card, { backgroundColor: colors.surface }]}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.sectionTitle}>
+            <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
               Recommendations
             </Text>
             {riskAssessment.recommendations.map((rec, index) => (
               <List.Item
                 key={index}
                 title={rec}
+                titleStyle={{ color: colors.onSurface }}
                 left={(props) => (
                   <MaterialCommunityIcons name="lightbulb-on" size={24} color="#FFA726" />
                 )}
@@ -247,24 +290,36 @@ const StationDetailScreen = ({ route }) => {
 
       {/* AI Insights */}
       {aiInsights && aiInsights.insights && aiInsights.insights.length > 0 && (
-        <Card style={styles.card}>
+        <Card style={[styles.card, { backgroundColor: colors.surface }]}>
           <Card.Content>
             <View style={styles.aiHeader}>
-              <MaterialCommunityIcons name="brain" size={24} color={theme.colors.primary} />
-              <Text variant="titleMedium" style={styles.aiTitle}>
+              <MaterialCommunityIcons name="brain" size={24} color={colors.primary} />
+              <Text variant="titleMedium" style={[styles.aiTitle, { color: colors.onSurface }]}>
                 AI Insights
               </Text>
             </View>
             {aiInsights.insights.map((insight, index) => (
-              <Card key={index} style={styles.insightCard}>
+              <Card
+                key={index}
+                style={[styles.insightCard, { backgroundColor: colors.surfaceVariant }]}
+              >
                 <Card.Content>
-                  <Text variant="labelSmall" style={styles.insightType}>
+                  <Text
+                    variant="labelSmall"
+                    style={[styles.insightType, { color: colors.onSurfaceVariant }]}
+                  >
                     {insight.type.toUpperCase()}
                   </Text>
-                  <Text variant="bodyMedium" style={styles.insightMessage}>
+                  <Text
+                    variant="bodyMedium"
+                    style={[styles.insightMessage, { color: colors.onSurface }]}
+                  >
                     {insight.message}
                   </Text>
-                  <Text variant="bodySmall" style={styles.insightImpact}>
+                  <Text
+                    variant="bodySmall"
+                    style={[styles.insightImpact, { color: colors.onSurfaceVariant }]}
+                  >
                     Impact: {insight.impact}
                   </Text>
                 </Card.Content>
@@ -275,30 +330,50 @@ const StationDetailScreen = ({ route }) => {
       )}
 
       {/* Station Details */}
-      <Card style={styles.card}>
+      <Card style={[styles.card, { backgroundColor: colors.surface }]}>
         <Card.Content>
-          <Text variant="titleMedium" style={styles.sectionTitle}>
+          <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
             Station Information
           </Text>
           <List.Item
             title="Installation Date"
             description={new Date(station.installationDate).toLocaleDateString()}
-            left={(props) => <MaterialCommunityIcons name="calendar" size={24} />}
+            titleStyle={{ color: colors.onSurface }}
+            descriptionStyle={{ color: colors.onSurfaceVariant }}
+            left={(props) => (
+              <MaterialCommunityIcons name="calendar" size={24} color={colors.onSurfaceVariant} />
+            )}
           />
           <List.Item
             title="Coordinates"
             description={`${station.latitude.toFixed(4)}, ${station.longitude.toFixed(4)}`}
-            left={(props) => <MaterialCommunityIcons name="map-marker" size={24} />}
+            titleStyle={{ color: colors.onSurface }}
+            descriptionStyle={{ color: colors.onSurfaceVariant }}
+            left={(props) => (
+              <MaterialCommunityIcons name="map-marker" size={24} color={colors.onSurfaceVariant} />
+            )}
           />
           <List.Item
             title="Aquifer Type"
             description={station.aquiferType}
-            left={(props) => <MaterialCommunityIcons name="layers" size={24} />}
+            titleStyle={{ color: colors.onSurface }}
+            descriptionStyle={{ color: colors.onSurfaceVariant }}
+            left={(props) => (
+              <MaterialCommunityIcons name="layers" size={24} color={colors.onSurfaceVariant} />
+            )}
           />
           <List.Item
             title="Station Depth"
             description={`${station.depth} meters`}
-            left={(props) => <MaterialCommunityIcons name="arrow-down-thick" size={24} />}
+            titleStyle={{ color: colors.onSurface }}
+            descriptionStyle={{ color: colors.onSurfaceVariant }}
+            left={(props) => (
+              <MaterialCommunityIcons
+                name="arrow-down-thick"
+                size={24}
+                color={colors.onSurfaceVariant}
+              />
+            )}
           />
         </Card.Content>
       </Card>
@@ -309,7 +384,6 @@ const StationDetailScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
   },
   loadingContainer: {
     flex: 1,
@@ -414,18 +488,14 @@ const styles = StyleSheet.create({
   },
   insightCard: {
     marginBottom: 12,
-    backgroundColor: '#F0F0F0',
   },
   insightType: {
-    color: '#666',
     marginBottom: 4,
   },
   insightMessage: {
     marginBottom: 4,
   },
-  insightImpact: {
-    opacity: 0.7,
-  },
+  insightImpact: {},
 });
 
 export default StationDetailScreen;

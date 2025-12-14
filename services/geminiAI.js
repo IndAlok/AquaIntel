@@ -1,4 +1,3 @@
-// services/geminiAI.js
 // Gemini Flash 2.5 AI Integration for AquaIntel Assistant
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -8,10 +7,25 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const API_KEY = Constants.expoConfig?.extra?.geminiApiKey || process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 
 if (!API_KEY) {
-  console.warn('⚠️ Gemini API Key not found. AI Assistant will not work.');
+  console.warn('\u{26A0}\u{FE0F} Gemini API Key not found. AI Assistant will not work.');
 }
 
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
+
+// Emoji constants for consistent rendering
+const EMOJI = {
+  water: '\u{1F4A7}',
+  rain: '\u{1F327}\u{FE0F}',
+  plant: '\u{1F33E}',
+  bulb: '\u{1F4A1}',
+  chart: '\u{1F4CA}',
+  landscape: '\u{1F3DE}\u{FE0F}',
+  warning: '\u{26A0}\u{FE0F}',
+  pin: '\u{1F4CD}',
+  bell: '\u{1F514}',
+  sun: '\u{2600}\u{FE0F}',
+  check: '\u{2705}',
+};
 
 // System prompt for AquaIntel AI Assistant
 const getSystemPrompt = (userContext) => {
@@ -60,18 +74,18 @@ ${role ? `- Role: ${role}` : ''}
 - End with a helpful suggestion or question
 
 **Topics You Can Help With:**
-✅ Water level trends and forecasts
-✅ Rainfall data interpretation
-✅ Irrigation scheduling
-✅ Water conservation tips
-✅ Government scheme information
-✅ Emergency water management
-✅ Crop-specific water requirements
-✅ Borewell and well management
-✅ Water quality concerns
-✅ Recharge pit construction
+${EMOJI.check} Water level trends and forecasts
+${EMOJI.check} Rainfall data interpretation
+${EMOJI.check} Irrigation scheduling
+${EMOJI.check} Water conservation tips
+${EMOJI.check} Government scheme information
+${EMOJI.check} Emergency water management
+${EMOJI.check} Crop-specific water requirements
+${EMOJI.check} Borewell and well management
+${EMOJI.check} Water quality concerns
+${EMOJI.check} Recharge pit construction
 
-Remember: You're here to empower users with water intelligence! 💧`;
+Remember: You're here to empower users with water intelligence! ${EMOJI.water}`;
 };
 
 // Chat history storage
@@ -124,7 +138,7 @@ class GeminiAIService {
         },
         {
           role: 'model',
-          parts: [{ text: 'Hello! I\'m your AquaIntel AI Assistant. I\'m here to help you with groundwater data, water management, and conservation. What would you like to know? 💧' }],
+          parts: [{ text: `Hello! I'm your AquaIntel AI Assistant. I'm here to help you with groundwater data, water management, and conservation. What would you like to know? ${EMOJI.water}` }],
         },
         ...history,
       ],
@@ -212,14 +226,14 @@ class GeminiAIService {
   // Predefined quick questions
   getQuickQuestions(region) {
     const questions = [
-      '💧 What is the current water level trend in my area?',
-      '🌧️ How much rainfall is expected this month?',
-      '🌾 When should I irrigate my crops?',
-      '💡 How can I conserve groundwater?',
-      '📊 Explain my water table data',
-      '🏞️ Are there any government schemes for water management?',
-      '⚠️ What should I do during water shortage?',
-      '🔍 How to check water quality?',
+      `${EMOJI.water} What is the current water level trend in my area?`,
+      `${EMOJI.rain} How much rainfall is expected this month?`,
+      `${EMOJI.plant} When should I irrigate my crops?`,
+      `${EMOJI.bulb} How can I conserve groundwater?`,
+      `${EMOJI.chart} Explain my water table data`,
+      `${EMOJI.landscape} Are there any government schemes for water management?`,
+      `${EMOJI.warning} What should I do during water shortage?`,
+      `${EMOJI.pin} How to check water quality?`,
     ];
 
     return questions;
@@ -231,23 +245,23 @@ class GeminiAIService {
     const suggestions = [];
 
     if (waterLevel?.status === 'critical') {
-      suggestions.push('⚠️ Your water level is critical. What can I do?');
+      suggestions.push(`${EMOJI.warning} Your water level is critical. What can I do?`);
     }
 
     if (rainfall?.isDeficit) {
-      suggestions.push('🌧️ Low rainfall detected. How to manage water?');
+      suggestions.push(`${EMOJI.rain} Low rainfall detected. How to manage water?`);
     }
 
     if (alerts?.length > 0) {
-      suggestions.push('🔔 Explain my current alerts');
+      suggestions.push(`${EMOJI.bell} Explain my current alerts`);
     }
 
     if (season === 'summer') {
-      suggestions.push('☀️ Summer water conservation tips');
+      suggestions.push(`${EMOJI.sun} Summer water conservation tips`);
     }
 
     if (season === 'monsoon') {
-      suggestions.push('🌧️ How to harvest rainwater?');
+      suggestions.push(`${EMOJI.rain} How to harvest rainwater?`);
     }
 
     return suggestions;

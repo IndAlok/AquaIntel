@@ -1,17 +1,13 @@
-// screens/auth/LoginScreen.jsx
-// Login screen with email/password authentication
-
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Text, TextInput, useTheme, Snackbar } from 'react-native-paper';
+import { Text, TextInput, useTheme, Snackbar, Chip, Divider } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ThemedButton from '../../components/ThemedButton';
 import { useAuth } from '../../store/AuthContext';
 
 const LoginScreen = ({ navigation }) => {
   const theme = useTheme();
-  const { login } = useAuth();
-  
+  const { login, firebaseDisabled, signInWithGoogle, googleLoading, googleAuthAvailable } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,40 +19,35 @@ const LoginScreen = ({ navigation }) => {
       setError('Please fill in all fields');
       return;
     }
-
     setLoading(true);
     setError('');
-
     const result = await login(email, password);
-    
     setLoading(false);
-
-    if (!result.success) {
-      setError(result.error || 'Login failed. Please try again.');
-    }
+    if (!result.success) setError(result.error || 'Login failed');
   };
 
   const handleDemoLogin = async () => {
-    // Use credentials from environment variables
     const demoEmail = process.env.EXPO_PUBLIC_DEMO_EMAIL || 'demo@aquaintel.gov.in';
     const demoPassword = process.env.EXPO_PUBLIC_DEMO_PASSWORD || 'AquaIntel@2025';
-    
     setEmail(demoEmail);
     setPassword(demoPassword);
-    
     setLoading(true);
     const result = await login(demoEmail, demoPassword);
     setLoading(false);
+    if (!result.success) setError('Demo account not available. Please sign up.');
+  };
 
+  const handleGoogleSignIn = async () => {
+    setError('');
+    const result = await signInWithGoogle();
     if (!result.success) {
-      setError('Demo account not available. Please create this account first or sign up with your own credentials.');
-      console.log('💡 Tip: Create a Firebase user with email:', demoEmail);
+      setError(result.error || 'Google Sign-In failed');
     }
   };
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -65,11 +56,15 @@ const LoginScreen = ({ navigation }) => {
           <Text variant="headlineLarge" style={[styles.title, { color: theme.colors.primary }]}>
             Welcome Back
           </Text>
-          <Text variant="bodyLarge" style={styles.subtitle}>
+          <Text variant="bodyLarge" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
             Sign in to continue to AquaIntel
           </Text>
+          {firebaseDisabled && (
+            <Chip mode="outlined" style={styles.chip} textStyle={{ color: theme.colors.error }}>
+              Auth disabled: add Firebase env
+            </Chip>
+          )}
         </View>
-
         <View style={styles.form}>
           <TextInput
             label="Email"
@@ -81,7 +76,6 @@ const LoginScreen = ({ navigation }) => {
             left={<TextInput.Icon icon="email" />}
             style={styles.input}
           />
-
           <TextInput
             label="Password"
             value={password}
@@ -97,50 +91,63 @@ const LoginScreen = ({ navigation }) => {
             }
             style={styles.input}
           />
-
           <ThemedButton
             onPress={handleLogin}
             loading={loading}
-            style={styles.loginButton}
+            disabled={firebaseDisabled}
+            style={styles.button}
           >
             Login
           </ThemedButton>
-
           <ThemedButton
             mode="outlined"
             onPress={handleDemoLogin}
-            disabled={loading}
-            style={styles.demoButton}
+            disabled={loading || firebaseDisabled}
+            style={styles.button}
           >
             Try Demo Account
           </ThemedButton>
-
-          <View style={styles.signupContainer}>
-            <Text variant="bodyMedium">Don't have an account? </Text>
+          <View style={styles.dividerContainer}>
+            <Divider style={[styles.divider, { backgroundColor: theme.colors.outline }]} />
+            <Text variant="bodyMedium" style={[styles.dividerText, { color: theme.colors.onSurfaceVariant }]}>
+              or
+            </Text>
+            <Divider style={[styles.divider, { backgroundColor: theme.colors.outline }]} />
+          </View>
+          {googleAuthAvailable && (
+            <ThemedButton
+              mode="outlined"
+              onPress={handleGoogleSignIn}
+              loading={googleLoading}
+              disabled={loading || firebaseDisabled || googleLoading}
+              style={styles.button}
+              icon={() => <MaterialCommunityIcons name="google" size={20} color={theme.colors.primary} />}
+            >
+              Continue with Google
+            </ThemedButton>
+          )}
+          <View style={styles.signupRow}>
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
+              Don't have an account?{' '}
+            </Text>
             <Text
               variant="bodyMedium"
-              style={[styles.signupLink, { color: theme.colors.primary }]}
+              style={{ color: theme.colors.primary, fontWeight: 'bold' }}
               onPress={() => navigation.navigate('Signup')}
             >
               Sign Up
             </Text>
           </View>
         </View>
-
-        <Text variant="bodySmall" style={styles.footer}>
-          Ministry of Jal Shakti{'\n'}
-          Government of India
+        <Text variant="bodySmall" style={[styles.footer, { color: theme.colors.onSurfaceVariant }]}>
+          Ministry of Jal Shakti{'\n'}Government of India
         </Text>
       </ScrollView>
-
       <Snackbar
         visible={!!error}
         onDismiss={() => setError('')}
         duration={3000}
-        action={{
-          label: 'Dismiss',
-          onPress: () => setError(''),
-        }}
+        action={{ label: 'OK', onPress: () => setError('') }}
       >
         {error}
       </Snackbar>
@@ -149,51 +156,57 @@ const LoginScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
+  container: { 
+    flex: 1 
   },
-  scrollContent: {
-    flexGrow: 1,
-    padding: 24,
+  scrollContent: { 
+    flexGrow: 1, 
+    padding: 24 
   },
-  header: {
-    alignItems: 'center',
-    marginTop: 48,
-    marginBottom: 32,
+  header: { 
+    alignItems: 'center', 
+    marginTop: 48, 
+    marginBottom: 32 
   },
-  title: {
-    marginTop: 16,
-    fontWeight: 'bold',
+  title: { 
+    marginTop: 16, 
+    fontWeight: 'bold' 
   },
-  subtitle: {
-    marginTop: 8,
-    color: '#666',
+  subtitle: { 
+    marginTop: 8 
   },
-  form: {
-    flex: 1,
+  chip: {
+    marginTop: 12
   },
-  input: {
-    marginBottom: 16,
+  form: { 
+    flex: 1 
   },
-  loginButton: {
-    marginTop: 8,
+  input: { 
+    marginBottom: 16 
   },
-  demoButton: {
-    marginTop: 8,
+  button: { 
+    marginTop: 8 
   },
-  signupContainer: {
+  dividerContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 24,
+    alignItems: 'center',
+    marginVertical: 20,
   },
-  signupLink: {
-    fontWeight: 'bold',
+  divider: { 
+    flex: 1, 
+    height: 1 
   },
-  footer: {
-    textAlign: 'center',
-    color: '#999',
-    marginTop: 32,
+  dividerText: { 
+    marginHorizontal: 16 
+  },
+  signupRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'center', 
+    marginTop: 24 
+  },
+  footer: { 
+    textAlign: 'center', 
+    marginTop: 32 
   },
 });
 

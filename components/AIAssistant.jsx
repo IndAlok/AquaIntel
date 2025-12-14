@@ -1,7 +1,6 @@
-// components/AIAssistant.jsx
 // Floating AI Assistant Button with Chat Interface
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,7 +8,6 @@ import {
   Platform,
   ScrollView,
   Animated,
-  TouchableOpacity,
 } from 'react-native';
 import {
   FAB,
@@ -25,7 +23,34 @@ import {
 } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
+import Markdown from 'react-native-markdown-display';
 import geminiAI from '../services/geminiAI';
+
+const USE_NATIVE_DRIVER = Platform.OS !== 'web';
+
+const WELCOME_EMOJIS = {
+  wave: '\u{1F44B}',
+  water: '\u{1F4A7}',
+  rain: '\u{1F327}\u{FE0F}',
+  plant: '\u{1F33E}',
+  bulb: '\u{1F4A1}',
+  chart: '\u{1F4CA}',
+};
+
+const getWelcomeMessage = (userName) => {
+  const greeting = userName ? `Hello ${userName}!` : 'Hello!';
+  return `${greeting} ${WELCOME_EMOJIS.wave}
+
+I'm your AquaIntel AI Assistant. I can help you with:
+
+${WELCOME_EMOJIS.water} Water level trends
+${WELCOME_EMOJIS.rain} Rainfall forecasts
+${WELCOME_EMOJIS.plant} Irrigation advice
+${WELCOME_EMOJIS.bulb} Conservation tips
+${WELCOME_EMOJIS.chart} Data interpretation
+
+What would you like to know?`;
+};
 
 const AIAssistant = ({ userContext, appState, visible = true }) => {
   const theme = useTheme();
@@ -37,28 +62,131 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
   const scrollViewRef = useRef(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
-  // Pulsing animation for FAB
+  const markdownStyles = useMemo(
+    () => ({
+      body: {
+        color: theme.colors.onSurface,
+        fontSize: 14,
+        lineHeight: 20,
+      },
+      paragraph: {
+        marginTop: 0,
+        marginBottom: 8,
+      },
+      heading1: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        color: theme.colors.onSurface,
+      },
+      heading2: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 6,
+        color: theme.colors.onSurface,
+      },
+      heading3: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 4,
+        color: theme.colors.onSurface,
+      },
+      strong: {
+        fontWeight: 'bold',
+      },
+      em: {
+        fontStyle: 'italic',
+      },
+      bullet_list: {
+        marginVertical: 4,
+      },
+      ordered_list: {
+        marginVertical: 4,
+      },
+      list_item: {
+        marginVertical: 2,
+      },
+      code_inline: {
+        backgroundColor: theme.colors.surfaceVariant,
+        paddingHorizontal: 4,
+        paddingVertical: 2,
+        borderRadius: 4,
+        fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+        fontSize: 13,
+      },
+      code_block: {
+        backgroundColor: theme.colors.surfaceVariant,
+        padding: 12,
+        borderRadius: 8,
+        fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+        fontSize: 13,
+        marginVertical: 8,
+      },
+      fence: {
+        backgroundColor: theme.colors.surfaceVariant,
+        padding: 12,
+        borderRadius: 8,
+        fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+        fontSize: 13,
+        marginVertical: 8,
+      },
+      blockquote: {
+        borderLeftWidth: 4,
+        borderLeftColor: theme.colors.primary,
+        paddingLeft: 12,
+        marginVertical: 8,
+        opacity: 0.8,
+      },
+      link: {
+        color: theme.colors.primary,
+        textDecorationLine: 'underline',
+      },
+      hr: {
+        backgroundColor: theme.colors.outline,
+        height: 1,
+        marginVertical: 12,
+      },
+      table: {
+        borderWidth: 1,
+        borderColor: theme.colors.outline,
+        borderRadius: 4,
+        marginVertical: 8,
+      },
+      thead: {
+        backgroundColor: theme.colors.surfaceVariant,
+      },
+      th: {
+        padding: 8,
+        fontWeight: 'bold',
+      },
+      td: {
+        padding: 8,
+        borderTopWidth: 1,
+        borderColor: theme.colors.outline,
+      },
+    }),
+    [theme]
+  );
+
   useEffect(() => {
     const pulse = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
           toValue: 1.1,
           duration: 1000,
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
           duration: 1000,
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
       ])
     );
     pulse.start();
-
     return () => pulse.stop();
   }, []);
 
-  // Initialize AI when modal opens
   useEffect(() => {
     if (isOpen && !isInitialized) {
       initializeAI();
@@ -72,7 +200,7 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
         {
           id: '1',
           role: 'model',
-          content: `Hello${userContext?.name ? ` ${userContext.name}` : ''}! 👋\n\nI'm your AquaIntel AI Assistant. I can help you with:\n\n💧 Water level trends\n🌧️ Rainfall forecasts\n🌾 Irrigation advice\n💡 Conservation tips\n📊 Data interpretation\n\nWhat would you like to know?`,
+          content: getWelcomeMessage(userContext?.name),
           timestamp: new Date(),
         },
       ]);
@@ -83,7 +211,8 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
         {
           id: '1',
           role: 'error',
-          content: 'Sorry, AI Assistant is currently unavailable. Please check your API key configuration.',
+          content:
+            'Sorry, AI Assistant is currently unavailable. Please check your API key configuration.',
           timestamp: new Date(),
         },
       ]);
@@ -96,7 +225,6 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
     const userMessage = inputText.trim();
     setInputText('');
 
-    // Add user message
     const newUserMessage = {
       id: Date.now().toString(),
       role: 'user',
@@ -104,15 +232,10 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
       timestamp: new Date(),
     };
     setMessages((prev) => [...prev, newUserMessage]);
-
-    // Show loading
     setIsLoading(true);
 
     try {
-      // Send to AI with app context
       const response = await geminiAI.sendMessage(userMessage, appState);
-
-      // Add AI response
       const aiMessage = {
         id: (Date.now() + 1).toString(),
         role: 'model',
@@ -136,7 +259,11 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
   };
 
   const handleQuickQuestion = (question) => {
-    setInputText(question.replace(/^[💧🌧️🌾💡📊🏞️⚠️🔍]\s/, '')); // Remove emoji
+    const cleanQuestion = question.replace(
+      /^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]\s*/u,
+      ''
+    );
+    setInputText(cleanQuestion);
   };
 
   const handleClearChat = async () => {
@@ -153,27 +280,17 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
 
   return (
     <>
-      {/* Floating Action Button */}
-      <Animated.View
-        style={[
-          styles.fabContainer,
-          { transform: [{ scale: pulseAnim }] },
-        ]}
-      >
+      <Animated.View style={[styles.fabContainer, { transform: [{ scale: pulseAnim }] }]}>
         <FAB
           icon="robot"
-          label="AI Assistant"
+          label="AquaIntel AI"
           onPress={() => setIsOpen(true)}
-          style={[
-            styles.fab,
-            { backgroundColor: theme.colors.primary },
-          ]}
+          style={[styles.fab, { backgroundColor: theme.colors.primary }]}
           color="#fff"
           animated
         />
       </Animated.View>
 
-      {/* Chat Modal */}
       <Portal>
         <Modal
           visible={isOpen}
@@ -187,18 +304,12 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.keyboardView}
           >
-            {/* Header */}
-            <View
-              style={[
-                styles.header,
-                { backgroundColor: theme.colors.primary },
-              ]}
-            >
+            <View style={[styles.header, { backgroundColor: theme.colors.primary }]}>
               <View style={styles.headerLeft}>
                 <MaterialCommunityIcons name="robot" size={28} color="#fff" />
                 <View style={styles.headerText}>
                   <Text variant="titleMedium" style={styles.headerTitle}>
-                    AI Assistant
+                    AquaIntel AI
                   </Text>
                   <Text variant="bodySmall" style={styles.headerSubtitle}>
                     Powered by Gemini Flash 2.5
@@ -206,12 +317,7 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
                 </View>
               </View>
               <View style={styles.headerRight}>
-                <IconButton
-                  icon="refresh"
-                  iconColor="#fff"
-                  size={20}
-                  onPress={handleClearChat}
-                />
+                <IconButton icon="refresh" iconColor="#fff" size={20} onPress={handleClearChat} />
                 <IconButton
                   icon="close"
                   iconColor="#fff"
@@ -221,14 +327,11 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
               </View>
             </View>
 
-            {/* Messages */}
             <ScrollView
               ref={scrollViewRef}
               style={styles.messagesContainer}
               contentContainerStyle={styles.messagesContent}
-              onContentSizeChange={() =>
-                scrollViewRef.current?.scrollToEnd({ animated: true })
-              }
+              onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
             >
               {messages.map((message, index) => (
                 <Animatable.View
@@ -239,16 +342,9 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
                 >
                   {message.role === 'user' ? (
                     <View style={styles.userMessageContainer}>
-                      <Card
-                        style={[
-                          styles.userMessage,
-                          { backgroundColor: theme.colors.primary },
-                        ]}
-                      >
+                      <Card style={[styles.userMessage, { backgroundColor: theme.colors.primary }]}>
                         <Card.Content>
-                          <Text style={styles.userMessageText}>
-                            {message.content}
-                          </Text>
+                          <Text style={styles.userMessageText}>{message.content}</Text>
                         </Card.Content>
                       </Card>
                     </View>
@@ -261,22 +357,10 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
                         style={styles.aiIcon}
                       />
                       <Card
-                        style={[
-                          styles.aiMessage,
-                          {
-                            backgroundColor: theme.colors.surfaceVariant,
-                          },
-                        ]}
+                        style={[styles.aiMessage, { backgroundColor: theme.colors.surfaceVariant }]}
                       >
-                        <Card.Content>
-                          <Text
-                            style={[
-                              styles.aiMessageText,
-                              { color: theme.colors.onSurface },
-                            ]}
-                          >
-                            {message.content}
-                          </Text>
+                        <Card.Content style={styles.aiMessageContent}>
+                          <Markdown style={markdownStyles}>{message.content}</Markdown>
                         </Card.Content>
                       </Card>
                     </View>
@@ -292,7 +376,6 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
               )}
             </ScrollView>
 
-            {/* Quick Questions */}
             {messages.length === 1 && !isLoading && (
               <ScrollView
                 horizontal
@@ -313,13 +396,7 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
               </ScrollView>
             )}
 
-            {/* Input */}
-            <View
-              style={[
-                styles.inputContainer,
-                { backgroundColor: theme.colors.surface },
-              ]}
-            >
+            <View style={[styles.inputContainer, { backgroundColor: theme.colors.surface }]}>
               <TextInput
                 mode="outlined"
                 placeholder="Ask me anything about water management..."
@@ -334,9 +411,7 @@ const AIAssistant = ({ userContext, appState, visible = true }) => {
                     onPress={handleSendMessage}
                     disabled={!inputText.trim() || isLoading}
                     color={
-                      inputText.trim() && !isLoading
-                        ? theme.colors.primary
-                        : theme.colors.outline
+                      inputText.trim() && !isLoading ? theme.colors.primary : theme.colors.outline
                     }
                   />
                 }
@@ -358,11 +433,16 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   fab: {
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    ...(Platform.select({
+      web: { boxShadow: '0 4px 12px rgba(0,0,0,0.2)' },
+      default: {
+        elevation: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+    }) || {}),
   },
   modalContainer: {
     margin: 20,
@@ -431,8 +511,8 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
     elevation: 1,
   },
-  aiMessageText: {
-    lineHeight: 20,
+  aiMessageContent: {
+    paddingVertical: 4,
   },
   loadingContainer: {
     flexDirection: 'row',

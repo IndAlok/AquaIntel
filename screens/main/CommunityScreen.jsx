@@ -1,5 +1,4 @@
-// screens/main/CommunityScreen.jsx
-// Community forum and collaboration screen
+﻿// Community forum and collaboration screen
 
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
@@ -202,7 +201,7 @@ const CommunityScreen = () => {
                     {post.authorRole}
                   </Text>
                   <Text variant="bodySmall" style={{ color: theme.colors.outline }}>
-                    {' • ' + post.time}
+                    {' â€¢ ' + post.time}
                   </Text>
                 </View>
               </View>

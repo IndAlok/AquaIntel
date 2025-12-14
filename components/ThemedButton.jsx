@@ -1,5 +1,4 @@
-// components/ThemedButton.jsx
-// Custom themed button component with proper layout
+﻿// Custom themed button component with proper layout
 
 import React from 'react';
 import { StyleSheet } from 'react-native';
