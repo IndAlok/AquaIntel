@@ -18,7 +18,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [About](#-about)
 - [Features](#-features)
@@ -34,32 +34,32 @@
 
 ---
 
-## 🌊 About
+## About
 
 **AquaIntel** is a comprehensive groundwater monitoring and management platform designed for India's water resource sector. Built as a cross-platform solution using **React Native** and **Expo**, it provides real-time insights into groundwater levels, rainfall patterns, and water quality across India.
 
 The platform integrates with **National Water Informatics Centre (NWIC)** APIs to fetch live data and features an **AI-powered assistant** using Google's **Gemini Flash 2.5** model to provide personalized water management advice.
 
-### 🎯 Problem Statement
+### Problem Statement
 
 India faces a critical groundwater crisis with over 50% of the country's districts facing water stress. AquaIntel addresses this by:
 
-- 🌐 **Democratizing access** to groundwater data for farmers, officials, and citizens
-- 📊 **Providing actionable insights** through AI-powered analysis
-- 💡 **Enabling informed decision-making** for irrigation, conservation, and policy
+- **Democratizing access** to groundwater data for farmers, officials, and citizens
+- **Providing actionable insights** through AI-powered analysis
+- **Enabling informed decision-making** for irrigation, conservation, and policy
 
 ---
 
-## ✨ Features
+## Features
 
-### 📊 Dashboard & Analytics
+### Dashboard & Analytics
 
 - Real-time groundwater level monitoring across **1000+ stations**
 - Interactive charts and trend analysis using **Victory Native**
 - State and district-level statistics aggregation
 - Critical/Warning/Normal status indicators with color coding
 
-### 🗺️ Interactive Maps
+### Interactive Maps
 
 - **Cross-platform map support**:
   - React Native Maps for iOS/Android
@@ -68,7 +68,7 @@ India faces a critical groundwater crisis with over 50% of the country's distric
 - Geolocation-based nearest station discovery
 - Custom markers with real-time data
 
-### 🤖 AquaIntel AI Assistant
+### AquaIntel AI Assistant
 
 - Powered by **Google Gemini Flash 2.5**
 - Context-aware responses based on user's location and current data
@@ -77,7 +77,7 @@ India faces a critical groundwater crisis with over 50% of the country's distric
 - Chat history persistence with AsyncStorage
 - Region-specific agricultural and irrigation advice
 
-### 🔐 Authentication & Security
+### Authentication & Security
 
 - **Firebase Authentication**:
   - Email/Password authentication
@@ -86,13 +86,13 @@ India faces a critical groundwater crisis with over 50% of the country's distric
 - User profiles stored in Cloud Firestore
 - Input validation and error handling
 
-### 📱 Cross-Platform
+### Cross-Platform
 
 - **iOS** and **Android** native apps via Expo
 - **Web** deployment with responsive design
 - Platform-specific optimizations (maps, animations, UI components)
 
-### 🌙 Theme Support
+### Theme Support
 
 - Light and Dark mode with automatic system preference detection
 - Consistent **Material Design 3** styling via React Native Paper
@@ -101,7 +101,7 @@ India faces a critical groundwater crisis with over 50% of the country's distric
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 
@@ -136,7 +136,7 @@ India faces a critical groundwater crisis with over 50% of the country's distric
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TD
@@ -164,7 +164,7 @@ graph TD
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -221,7 +221,7 @@ graph TD
 
 ---
 
-## 🔐 Environment Variables
+## Environment Variables
 
 Create a `.env` file in the project root with the following variables:
 
@@ -260,11 +260,9 @@ EXPO_PUBLIC_NWIC_RAINFALL_RESOURCE_ID=your_resource_id
 EXPO_PUBLIC_NWIC_WATER_QUALITY_RESOURCE_ID=your_resource_id
 ```
 
-> ⚠️ **Security Note**: Never commit `.env` files to version control. The `.env` file is already in `.gitignore`.
-
 ---
 
-## 🌐 Deployment
+## Deployment
 
 ### Web Deployment (Vercel)
 
@@ -315,7 +313,7 @@ EXPO_PUBLIC_NWIC_WATER_QUALITY_RESOURCE_ID=your_resource_id
 
 ---
 
-## 🔌 API Integration
+## API Integration
 
 ### National Water Informatics Centre (NWIC)
 
@@ -350,9 +348,9 @@ The AI assistant leverages Gemini Flash 2.5 for:
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
-### ✅ Completed
+### Completed
 - [x] Core dashboard with real-time data visualization
 - [x] NWIC API integration with fallback system
 - [x] AI Assistant powered by Gemini Flash 2.5
@@ -378,7 +376,7 @@ The AI assistant leverages Gemini Flash 2.5 for:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are what make the open-source community amazing! Any contributions you make are **greatly appreciated**.
 
@@ -409,15 +407,15 @@ Contributions are what make the open-source community amazing! Any contributions
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 👨‍💻 Author
+## Author
 
-**Alok**
+**IndAlok**
 
 - GitHub: [@IndAlok](https://github.com/IndAlok)
 - Project Link: [https://github.com/IndAlok/AquaIntel](https://github.com/IndAlok/AquaIntel)
@@ -427,7 +425,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 <div align="center">
 
-### ⭐ Star this repository if you found it helpful!
+### Star this repository if you found it helpful!
 
 **Made with ❤️ for India's Water Security**
 
