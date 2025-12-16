@@ -361,12 +361,12 @@ The AI assistant leverages Gemini Flash 2.5 for:
 - [x] Theme support (Light/Dark mode)
 - [x] Responsive design for mobile and web
 
-### 🚧 In Progress
+### In Progress
 - [ ] Push notifications for water level alerts
 - [ ] Offline data caching with background sync
 - [ ] User-generated reports and community features
 
-### 📅 Planned
+### Planned
 - [ ] Multi-language support (Hindi, Tamil, Telugu, Bengali)
 - [ ] Advanced ML predictions for water levels
 - [ ] Integration with more government data sources
