@@ -29,12 +29,12 @@ const WaterLevelChart = ({ data, title, height = 250 }) => {
         width={Math.min(screenWidth - 32, 600)}
         height={height}
         theme={VictoryTheme.material}
-        padding={{ top: 20, bottom: 50, left: 65, right: 20 }}
+        padding={{ top: 20, bottom: 60, left: 80, right: 30 }}
       >
         <VictoryAxis
           style={{
             axis: { stroke: colors.outline },
-            tickLabels: { fill: colors.onSurface, fontSize: 10 },
+            tickLabels: { fill: colors.onSurface, fontSize: 10, padding: 5 },
           }}
           tickFormat={(t) => {
             if (chartData[t]?.date) {
@@ -48,7 +48,7 @@ const WaterLevelChart = ({ data, title, height = 250 }) => {
           dependentAxis
           style={{
             axis: { stroke: colors.outline },
-            tickLabels: { fill: colors.onSurface, fontSize: 10 },
+            tickLabels: { fill: colors.onSurface, fontSize: 10, padding: 5 },
             grid: { stroke: colors.surfaceVariant, strokeDasharray: '4,4' },
           }}
           label="Water Level (m)"

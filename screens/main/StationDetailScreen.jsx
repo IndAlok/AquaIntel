@@ -28,12 +28,13 @@ const StationDetailScreen = ({ route }) => {
     () => ({
       body: {
         color: theme.colors.onSurface,
-        fontSize: 14,
-        lineHeight: 20,
+        fontSize: 16,
+        lineHeight: 24,
+        fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
       },
       paragraph: {
         marginTop: 0,
-        marginBottom: 8,
+        marginBottom: 12,
       },
       heading1: {
         fontSize: 20,
