@@ -1,7 +1,3 @@
-// data/mockStations.js
-// Mock DWLR (Digital Water Level Recorder) station data for India
-// Generates 100+ stations across various states and districts
-
 const states = [
   'Maharashtra', 'Gujarat', 'Rajasthan', 'Punjab', 'Haryana', 
   'Uttar Pradesh', 'Madhya Pradesh', 'Karnataka', 'Tamil Nadu', 
@@ -12,7 +8,6 @@ const states = [
 const aquiferTypes = ['Alluvial', 'Hard Rock', 'Consolidated', 'Semi-Consolidated', 'Coastal'];
 const statuses = ['Active', 'Inactive', 'Maintenance'];
 
-// Representative coordinates for each state (approximate central locations)
 const stateCoordinates = {
   'Maharashtra': { lat: 19.7515, lng: 75.7139 },
   'Gujarat': { lat: 22.2587, lng: 71.1924 },
@@ -55,10 +50,8 @@ const districts = {
   'Assam': ['Guwahati', 'Silchar', 'Dibrugarh', 'Jorhat', 'Tezpur']
 };
 
-// Generate random offset for coordinates
-const randomOffset = () => (Math.random() - 0.5) * 2; // ±1 degree variation
+const randomOffset = () => (Math.random() - 0.5) * 2;
 
-// Generate mock stations
 const generateMockStations = () => {
   const stations = [];
   let stationCounter = 1;
@@ -68,7 +61,6 @@ const generateMockStations = () => {
     const stateCode = state.substring(0, 2).toUpperCase();
     const baseCoords = stateCoordinates[state];
     
-    // Generate 5-8 stations per state
     const numStations = Math.floor(Math.random() * 4) + 5;
     
     for (let i = 0; i < numStations; i++) {
@@ -83,11 +75,11 @@ const generateMockStations = () => {
         state: state,
         district: district,
         aquiferType: aquiferTypes[Math.floor(Math.random() * aquiferTypes.length)],
-        status: statuses[Math.random() > 0.15 ? 0 : (Math.random() > 0.5 ? 1 : 2)], // 85% Active
+        status: statuses[Math.random() > 0.15 ? 0 : (Math.random() > 0.5 ? 1 : 2)],
         installationDate: new Date(2018 + Math.floor(Math.random() * 5), Math.floor(Math.random() * 12), 1).toISOString(),
-        depth: Math.floor(Math.random() * 80) + 20, // 20-100 meters
-        currentWaterLevel: Math.floor(Math.random() * 30) + 5, // 5-35 meters below ground
-        lastUpdated: new Date(Date.now() - Math.random() * 3600000).toISOString(), // Within last hour
+        depth: Math.floor(Math.random() * 80) + 20,
+        currentWaterLevel: Math.floor(Math.random() * 30) + 5,
+        lastUpdated: new Date(Date.now() - Math.random() * 3600000).toISOString(),
       });
       
       stationCounter++;
@@ -99,27 +91,22 @@ const generateMockStations = () => {
 
 export const mockStations = generateMockStations();
 
-// Helper function to get stations by state
 export const getStationsByState = (state) => {
   return mockStations.filter(station => station.state === state);
 };
 
-// Helper function to get stations by district
 export const getStationsByDistrict = (district) => {
   return mockStations.filter(station => station.district === district);
 };
 
-// Helper function to get station by ID
 export const getStationById = (id) => {
   return mockStations.find(station => station.id === id);
 };
 
-// Helper function to get active stations
 export const getActiveStations = () => {
   return mockStations.filter(station => station.status === 'Active');
 };
 
-// Get critical stations (water level > 80% of depth)
 export const getCriticalStations = () => {
   return mockStations.filter(station => {
     const criticalLevel = station.depth * 0.8;

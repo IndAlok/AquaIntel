@@ -1,18 +1,14 @@
-﻿// Firebase Analytics using Web SDK (compatible with Expo)
-
-import { getAnalytics, logEvent as firebaseLogEvent, setUserId as firebaseSetUserId, setUserProperties } from 'firebase/analytics';
+﻿import { getAnalytics, logEvent as firebaseLogEvent, setUserId as firebaseSetUserId, setUserProperties } from 'firebase/analytics';
 import app from './firebase';
 
-// Initialize Analytics
 let analytics;
 try {
   analytics = getAnalytics(app);
   console.log('âœ… Firebase Analytics initialized');
 } catch (error) {
-  console.warn('âš ï¸ Firebase Analytics not available:', error.message);
+  console.warn('âš ï¸  Firebase Analytics not available:', error.message);
 }
 
-// Analytics service
 export const logEvent = async (eventName, params = {}) => {
   if (!analytics) {
     console.warn('Analytics not initialized, skipping event:', eventName);
@@ -27,7 +23,6 @@ export const logEvent = async (eventName, params = {}) => {
   }
 };
 
-// Log screen view
 export const logScreenView = async (screenName, screenClass = null) => {
   if (!analytics) return;
   
@@ -42,7 +37,6 @@ export const logScreenView = async (screenName, screenClass = null) => {
   }
 };
 
-// Set user properties
 export const setUserProperty = async (properties) => {
   if (!analytics) return;
   
@@ -54,7 +48,6 @@ export const setUserProperty = async (properties) => {
   }
 };
 
-// Set user ID
 export const setUserId = async (userId) => {
   if (!analytics) return;
   
@@ -66,7 +59,6 @@ export const setUserId = async (userId) => {
   }
 };
 
-// Error logging (console only in web SDK)
 export const logError = (error, context = {}) => {
   try {
     console.error('ðŸ”¥ Error:', error, context);
@@ -82,41 +74,32 @@ export const logError = (error, context = {}) => {
   }
 };
 
-// Custom attributes (stored as event parameters in Web SDK)
 export const setCustomAttribute = (key, value) => {
-  console.log(`ðŸ·ï¸ Custom Attribute: ${key} = ${value}`);
-  // Web SDK doesn't have setAttribute, use event parameters instead
+  console.log(`ðŸ ·ï¸  Custom Attribute: ${key} = ${value}`);
 };
 
-// Breadcrumb (console logging in Web SDK)
 export const logBreadcrumb = (message) => {
-  console.log(`ðŸž Breadcrumb: ${message}`);
+  console.log(`ðŸ ž Breadcrumb: ${message}`);
 };
 
-// Pre-defined event loggers
 export const AnalyticsEvents = {
-  // Authentication events
   LOGIN: (method) => logEvent('login', { method }),
   SIGNUP: (method) => logEvent('sign_up', { method }),
   LOGOUT: () => logEvent('logout'),
   
-  // Screen events
   VIEW_DASHBOARD: () => logScreenView('Dashboard'),
   VIEW_MAP: () => logScreenView('Map'),
   VIEW_FORECAST: () => logScreenView('Forecast'),
   VIEW_STATION_DETAIL: (stationId) => logEvent('view_item', { item_id: stationId, item_name: 'station' }),
   
-  // Data events
   FETCH_WATER_DATA: (source) => logEvent('fetch_data', { data_type: 'water', source }),
   FETCH_RAINFALL_DATA: (location) => logEvent('fetch_data', { data_type: 'rainfall', location }),
   VIEW_PREDICTION: (type) => logEvent('view_prediction', { prediction_type: type }),
   
-  // User interaction
   SEARCH_STATION: (query) => logEvent('search', { search_term: query }),
   FILTER_DATA: (filterType) => logEvent('filter_data', { filter: filterType }),
   SHARE_REPORT: (reportType) => logEvent('share', { content_type: reportType, method: 'share' }),
   
-  // Settings
   CHANGE_THEME: (theme) => logEvent('change_theme', { theme }),
   TOGGLE_NOTIFICATIONS: (enabled) => logEvent('toggle_notifications', { enabled })
 };

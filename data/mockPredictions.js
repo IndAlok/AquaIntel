@@ -1,12 +1,5 @@
-// data/mockPredictions.js
-// Mock AI/ML predictions for groundwater levels and trends
-
 import { mockStations } from './mockStations';
 
-/**
- * Generate future water level predictions for next 6 months
- * Uses simple trend analysis + seasonal patterns
- */
 export const getPredictions = (stationId) => {
   const station = mockStations.find(s => s.id === stationId);
   if (!station) return null;
@@ -15,27 +8,23 @@ export const getPredictions = (stationId) => {
   const now = new Date();
   const currentLevel = station.currentWaterLevel;
   
-  // Generate daily predictions for next 180 days
   for (let i = 1; i <= 180; i++) {
     const date = new Date(now.getTime() + i * 24 * 60 * 60 * 1000);
     const month = date.getMonth();
     
-    // Seasonal trend
     let seasonalEffect = 0;
-    if (month >= 2 && month <= 4) { // Summer
+    if (month >= 2 && month <= 4) {
       seasonalEffect = 2 + (i / 180) * 3;
-    } else if (month >= 5 && month <= 8) { // Monsoon
+    } else if (month >= 5 && month <= 8) {
       seasonalEffect = -1 - (i / 180) * 2;
-    } else if (month >= 9 && month <= 10) { // Post-monsoon
+    } else if (month >= 9 && month <= 10) {
       seasonalEffect = -3;
-    } else { // Winter
+    } else {
       seasonalEffect = 1;
     }
     
-    // Long-term depletion trend
-    const depletionTrend = (i / 365) * 1.5; // 1.5m per year decline
+    const depletionTrend = (i / 365) * 1.5;
     
-    // Uncertainty increases with time
     const uncertainty = (i / 180) * 2;
     
     const predictedLevel = currentLevel + seasonalEffect + depletionTrend;
@@ -45,16 +34,13 @@ export const getPredictions = (stationId) => {
       predictedLevel: parseFloat(predictedLevel.toFixed(2)),
       lowerBound: parseFloat((predictedLevel - uncertainty).toFixed(2)),
       upperBound: parseFloat((predictedLevel + uncertainty).toFixed(2)),
-      confidence: parseFloat((100 - (i / 180) * 30).toFixed(2)), // 100% to 70%
+      confidence: parseFloat((100 - (i / 180) * 30).toFixed(2)),
     });
   }
   
   return predictions;
 };
 
-/**
- * Get monthly predictions summary
- */
 export const getMonthlyPredictions = (stationId) => {
   const station = mockStations.find(s => s.id === stationId);
   if (!station) return null;
@@ -78,7 +64,7 @@ export const getMonthlyPredictions = (stationId) => {
       avgLevel += 1;
     }
     
-    avgLevel += (i / 12) * 1.5; // Depletion trend
+    avgLevel += (i / 12) * 1.5;
     
     predictions.push({
       month: date.toISOString().substring(0, 7),
@@ -91,9 +77,6 @@ export const getMonthlyPredictions = (stationId) => {
   return predictions;
 };
 
-/**
- * Get risk assessment for the station
- */
 export const getRiskAssessment = (stationId) => {
   const station = mockStations.find(s => s.id === stationId);
   if (!station) return null;
@@ -150,9 +133,6 @@ export const getRiskAssessment = (stationId) => {
   };
 };
 
-/**
- * Generate recommendations based on risk level
- */
 const generateRecommendations = (riskLevel, station) => {
   const recommendations = [];
   
@@ -189,14 +169,10 @@ const generateRecommendations = (riskLevel, station) => {
   return recommendations;
 };
 
-/**
- * Get comparative analysis with nearby stations
- */
 export const getComparativeAnalysis = (stationId) => {
   const station = mockStations.find(s => s.id === stationId);
   if (!station) return null;
 
-  // Find nearby stations in same district
   const nearbyStations = mockStations
     .filter(s => s.district === station.district && s.id !== stationId && s.status === 'Active')
     .slice(0, 5);
@@ -204,7 +180,7 @@ export const getComparativeAnalysis = (stationId) => {
   const comparison = nearbyStations.map(s => ({
     stationId: s.id,
     stationName: s.name,
-    distance: (Math.random() * 20 + 5).toFixed(2), // Mock distance in km
+    distance: (Math.random() * 20 + 5).toFixed(2),
     waterLevel: s.currentWaterLevel,
     difference: parseFloat((s.currentWaterLevel - station.currentWaterLevel).toFixed(2)),
     status: s.status,
@@ -224,9 +200,6 @@ export const getComparativeAnalysis = (stationId) => {
   };
 };
 
-/**
- * Get AI insights and alerts
- */
 export const getAIInsights = (stationId) => {
   const station = mockStations.find(s => s.id === stationId);
   if (!station) return null;
@@ -234,7 +207,6 @@ export const getAIInsights = (stationId) => {
   const insights = [];
   const alerts = [];
   
-  // Generate contextual insights
   const currentLevel = station.currentWaterLevel;
   const month = new Date().getMonth();
   

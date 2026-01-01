@@ -1,6 +1,4 @@
-﻿// Chart component for water level visualization using Victory Native
-
-import React from 'react';
+﻿import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { Text } from 'react-native-paper';
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryArea } from 'victory-native';
@@ -18,7 +16,6 @@ const WaterLevelChart = ({ data, title, height = 250 }) => {
     );
   }
 
-  // Transform data for Victory
   const chartData = data.map((item, index) => ({
     x: index,
     y: item.waterLevel || item.value || 0,
@@ -32,7 +29,7 @@ const WaterLevelChart = ({ data, title, height = 250 }) => {
         width={Math.min(screenWidth - 32, 600)}
         height={height}
         theme={VictoryTheme.material}
-        padding={{ top: 20, bottom: 40, left: 50, right: 20 }}
+        padding={{ top: 20, bottom: 50, left: 65, right: 20 }}
       >
         <VictoryAxis
           style={{

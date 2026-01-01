@@ -1,6 +1,4 @@
-﻿// Community reporting and feedback screen - FULLY FIXED
-
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, Card, TextInput, SegmentedButtons, Chip, Snackbar } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -38,7 +36,6 @@ const ReportScreen = () => {
   ];
 
   const handleSubmit = async () => {
-    // Validation
     if (!category) {
       setSnackbarMessage('Please select a category');
       setSnackbarVisible(true);
@@ -65,13 +62,11 @@ const ReportScreen = () => {
 
     setLoading(true);
 
-    // Simulate API call
     setTimeout(() => {
       setLoading(false);
       setSnackbarMessage('Report submitted successfully! We will review it soon.');
       setSnackbarVisible(true);
       
-      // Reset form
       setCategory('');
       setStationId('');
       setDescription('');
@@ -85,7 +80,6 @@ const ReportScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView style={styles.scrollView}>
-        {/* Header */}
         <Animatable.View animation="fadeInDown" duration={600}>
           <Card style={[styles.headerCard, { backgroundColor: colors.surface }]}>
             <Card.Content>
@@ -99,12 +93,11 @@ const ReportScreen = () => {
                     Help us improve groundwater monitoring
                   </Text>
                 </View>
-            </View>
-          </Card.Content>
-        </Card>
+              </View>
+            </Card.Content>
+          </Card>
         </Animatable.View>
 
-        {/* Report Type Selector */}
         <Animatable.View animation="fadeIn" delay={200} duration={600}>
           <Card style={[styles.card, { backgroundColor: colors.surface }]}>
             <Card.Content>
@@ -131,7 +124,6 @@ const ReportScreen = () => {
           </Card>
         </Animatable.View>
 
-        {/* Category Selection */}
         <Animatable.View animation="fadeIn" delay={300} duration={600}>
           <Card style={[styles.card, { backgroundColor: colors.surface }]}>
             <Card.Content>
@@ -154,7 +146,6 @@ const ReportScreen = () => {
           </Card>
         </Animatable.View>
 
-        {/* Station ID (for issues only) */}
         {reportType === 'issue' && (
           <Animatable.View animation="fadeIn" delay={400} duration={600}>
             <Card style={[styles.card, { backgroundColor: colors.surface }]}>
@@ -176,7 +167,6 @@ const ReportScreen = () => {
           </Animatable.View>
         )}
 
-        {/* Description */}
         <Animatable.View animation="fadeIn" delay={500} duration={600}>
           <Card style={[styles.card, { backgroundColor: colors.surface }]}>
             <Card.Content>
@@ -202,29 +192,27 @@ const ReportScreen = () => {
           </Card>
         </Animatable.View>
 
-        {/* Contact Information */}
         <Animatable.View animation="fadeIn" delay={600} duration={600}>
           <Card style={[styles.card, { backgroundColor: colors.surface }]}>
             <Card.Content>
-            <TextInput
-              label="Contact Email"
-              value={contactEmail}
-              onChangeText={setContactEmail}
-              mode="outlined"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholder="your.email@example.com"
-              left={<TextInput.Icon icon="email" />}
-              textColor={colors.onSurface}
-            />
-            <Text variant="bodySmall" style={[styles.helperText, { color: colors.onSurfaceVariant }]}>
-              We'll use this to follow up on your report
-            </Text>
-          </Card.Content>
-        </Card>
+              <TextInput
+                label="Contact Email"
+                value={contactEmail}
+                onChangeText={setContactEmail}
+                mode="outlined"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholder="your.email@example.com"
+                left={<TextInput.Icon icon="email" />}
+                textColor={colors.onSurface}
+              />
+              <Text variant="bodySmall" style={[styles.helperText, { color: colors.onSurfaceVariant }]}>
+                We'll use this to follow up on your report
+              </Text>
+            </Card.Content>
+          </Card>
         </Animatable.View>
 
-        {/* Submit Button */}
         <Animatable.View animation="fadeInUp" delay={700} duration={600}>
           <View style={styles.buttonContainer}>
             <ThemedButton
@@ -238,75 +226,73 @@ const ReportScreen = () => {
           </View>
         </Animatable.View>
 
-        {/* Info Cards */}
         <Animatable.View animation="fadeIn" delay={800} duration={600}>
           <Card style={[styles.infoCard, { backgroundColor: colors.surfaceVariant }]}>
             <Card.Content>
-            <View style={styles.infoHeader}>
-              <MaterialCommunityIcons name="information" size={24} color={colors.primary} />
-              <Text variant="titleSmall" style={[styles.infoTitle, { color: colors.onSurface }]}>
-                Why Report Issues?
+              <View style={styles.infoHeader}>
+                <MaterialCommunityIcons name="information" size={24} color={colors.primary} />
+                <Text variant="titleSmall" style={[styles.infoTitle, { color: colors.onSurface }]}>
+                  Why Report Issues?
+                </Text>
+              </View>
+              <Text variant="bodyMedium" style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
+                Your reports help us maintain accurate groundwater data and ensure all monitoring
+                stations are functioning properly. Together, we can improve water resource management
+                across India.
               </Text>
-            </View>
-            <Text variant="bodyMedium" style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
-              Your reports help us maintain accurate groundwater data and ensure all monitoring
-              stations are functioning properly. Together, we can improve water resource management
-              across India.
-            </Text>
-          </Card.Content>
-        </Card>
+            </Card.Content>
+          </Card>
 
-        <Card style={[styles.infoCard, { backgroundColor: colors.surfaceVariant }]}>
-          <Card.Content>
-            <View style={styles.infoHeader}>
-              <MaterialCommunityIcons name="shield-check" size={24} color="#4CAF50" />
-              <Text variant="titleSmall" style={[styles.infoTitle, { color: colors.onSurface }]}>
-                Privacy & Data
+          <Card style={[styles.infoCard, { backgroundColor: colors.surfaceVariant }]}>
+            <Card.Content>
+              <View style={styles.infoHeader}>
+                <MaterialCommunityIcons name="shield-check" size={24} color="#4CAF50" />
+                <Text variant="titleSmall" style={[styles.infoTitle, { color: colors.onSurface }]}>
+                  Privacy & Data
+                </Text>
+              </View>
+              <Text variant="bodyMedium" style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
+                All reports are confidential and used solely for improving our services. Your contact
+                information will not be shared with third parties.
               </Text>
-            </View>
-            <Text variant="bodyMedium" style={[styles.infoText, { color: colors.onSurfaceVariant }]}>
-              All reports are confidential and used solely for improving our services. Your contact
-              information will not be shared with third parties.
-            </Text>
-          </Card.Content>
-        </Card>
+            </Card.Content>
+          </Card>
         </Animatable.View>
 
-        {/* Recent Reports Summary */}
         <Animatable.View animation="fadeIn" delay={900} duration={600}>
           <Card style={[styles.card, styles.statsCard, { backgroundColor: colors.surface }]}>
             <Card.Content>
               <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
-              Community Impact
-            </Text>
-            <View style={styles.statsGrid}>
-              <View style={styles.statItem}>
-                <Text variant="displaySmall" style={[styles.statValue, { color: colors.primary }]}>
-                  1,247
-                </Text>
-                <Text variant="bodySmall" style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>
-                  Reports Submitted
-                </Text>
+                Community Impact
+              </Text>
+              <View style={styles.statsGrid}>
+                <View style={styles.statItem}>
+                  <Text variant="displaySmall" style={[styles.statValue, { color: colors.primary }]}>
+                    1,247
+                  </Text>
+                  <Text variant="bodySmall" style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>
+                    Reports Submitted
+                  </Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text variant="displaySmall" style={[styles.statValue, { color: '#4CAF50' }]}>
+                    892
+                  </Text>
+                  <Text variant="bodySmall" style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>
+                    Issues Resolved
+                  </Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text variant="displaySmall" style={[styles.statValue, { color: '#FF9800' }]}>
+                    156
+                  </Text>
+                  <Text variant="bodySmall" style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>
+                    In Progress
+                  </Text>
+                </View>
               </View>
-              <View style={styles.statItem}>
-                <Text variant="displaySmall" style={[styles.statValue, { color: '#4CAF50' }]}>
-                  892
-                </Text>
-                <Text variant="bodySmall" style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>
-                  Issues Resolved
-                </Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text variant="displaySmall" style={[styles.statValue, { color: '#FF9800' }]}>
-                  156
-                </Text>
-                <Text variant="bodySmall" style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>
-                  In Progress
-                </Text>
-              </View>
-            </View>
-          </Card.Content>
-        </Card>
+            </Card.Content>
+          </Card>
         </Animatable.View>
       </ScrollView>
 

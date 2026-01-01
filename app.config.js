@@ -1,6 +1,3 @@
-// app.config.js
-// Dynamic configuration that supports environment variables
-
 module.exports = ({ config }) => {
   return {
     ...config,
@@ -68,7 +65,6 @@ module.exports = ({ config }) => {
       'expo-font',
     ],
     extra: {
-      // Firebase configuration exposed to app (env only; no hardcoded keys)
       firebaseApiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
       firebaseAuthDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
       firebaseProjectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
@@ -77,21 +73,16 @@ module.exports = ({ config }) => {
       firebaseAppId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
       firebaseMeasurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 
-      // Google Maps API
       googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY,
 
-      // Gemini AI API
       geminiApiKey: process.env.EXPO_PUBLIC_GEMINI_API_KEY,
 
-      // Demo credentials
       demoEmail: process.env.EXPO_PUBLIC_DEMO_EMAIL,
       demoPassword: process.env.EXPO_PUBLIC_DEMO_PASSWORD,
 
-      // App settings
       useRealData: process.env.EXPO_PUBLIC_USE_REAL_DATA,
       enableOfflineMode: process.env.EXPO_PUBLIC_ENABLE_OFFLINE_MODE,
 
-      // EAS project ID
       eas: {
         projectId: 'c8380ef2-81a3-4816-9cf7-9c722ea15087',
       },

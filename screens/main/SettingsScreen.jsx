@@ -1,6 +1,4 @@
-﻿// App settings and user profile screen - FULLY FUNCTIONAL
-
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Platform } from 'react-native';
 import {
   Text,
@@ -31,35 +29,28 @@ const SettingsScreen = () => {
   const { colors, isDark, themeMode, setThemeMode } = useAppTheme();
   const { user, logout } = useAuth();
 
-  // Notification settings
   const [notifications, setNotifications] = useState(true);
   const [criticalAlerts, setCriticalAlerts] = useState(true);
   const [weeklyReports, setWeeklyReports] = useState(false);
   const [dataSync, setDataSync] = useState(true);
 
-  // UI state
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
-  // Edit Profile Dialog
   const [editProfileVisible, setEditProfileVisible] = useState(false);
   const [editDisplayName, setEditDisplayName] = useState(user?.displayName || '');
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // Change Password Dialog
   const [changePasswordVisible, setChangePasswordVisible] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  // Theme Dialog
   const [themeDialogVisible, setThemeDialogVisible] = useState(false);
 
-  // Logout Dialog
   const [logoutDialogVisible, setLogoutDialogVisible] = useState(false);
 
-  // Clear Cache Dialog
   const [clearCacheDialogVisible, setClearCacheDialogVisible] = useState(false);
 
   const handleEditProfile = async () => {
@@ -107,11 +98,9 @@ const SettingsScreen = () => {
 
     setPasswordLoading(true);
     try {
-      // Re-authenticate user
       const credential = EmailAuthProvider.credential(user.email, currentPassword);
       await reauthenticateWithCredential(user, credential);
 
-      // Update password
       await updatePassword(user, newPassword);
 
       setSnackbarMessage('Password changed successfully!');
@@ -207,7 +196,6 @@ const SettingsScreen = () => {
 
   return (
     <ScrollView style={dynamicStyles.container}>
-      {/* User Profile */}
       <Card style={dynamicStyles.profileCard}>
         <Card.Content>
           <View style={styles.profileHeader}>
@@ -228,7 +216,6 @@ const SettingsScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* Account Settings */}
       <Card style={dynamicStyles.card}>
         <Card.Content>
           <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
@@ -293,7 +280,6 @@ const SettingsScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* Notifications */}
       <Card style={dynamicStyles.card}>
         <Card.Content>
           <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
@@ -348,7 +334,6 @@ const SettingsScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* Data & Storage */}
       <Card style={dynamicStyles.card}>
         <Card.Content>
           <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
@@ -399,7 +384,6 @@ const SettingsScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* About */}
       <Card style={dynamicStyles.card}>
         <Card.Content>
           <Text variant="titleMedium" style={dynamicStyles.sectionTitle}>
@@ -474,7 +458,6 @@ const SettingsScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* Credits */}
       <Card style={dynamicStyles.card}>
         <Card.Content>
           <View style={styles.creditsHeader}>
@@ -493,7 +476,6 @@ const SettingsScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* Logout Button */}
       <View style={styles.logoutContainer}>
         <ThemedButton
           mode="outlined"
@@ -506,7 +488,6 @@ const SettingsScreen = () => {
         </ThemedButton>
       </View>
 
-      {/* Edit Profile Dialog */}
       <Portal>
         <Dialog
           visible={editProfileVisible}
@@ -536,7 +517,6 @@ const SettingsScreen = () => {
         </Dialog>
       </Portal>
 
-      {/* Change Password Dialog */}
       <Portal>
         <Dialog
           visible={changePasswordVisible}
@@ -587,7 +567,6 @@ const SettingsScreen = () => {
         </Dialog>
       </Portal>
 
-      {/* Theme Selection Dialog */}
       <Portal>
         <Dialog
           visible={themeDialogVisible}
@@ -631,7 +610,6 @@ const SettingsScreen = () => {
         </Dialog>
       </Portal>
 
-      {/* Logout Confirmation Dialog */}
       <Portal>
         <Dialog visible={logoutDialogVisible} onDismiss={() => setLogoutDialogVisible(false)}>
           <Dialog.Title>Logout</Dialog.Title>
@@ -647,7 +625,6 @@ const SettingsScreen = () => {
         </Dialog>
       </Portal>
 
-      {/* Clear Cache Confirmation Dialog */}
       <Portal>
         <Dialog
           visible={clearCacheDialogVisible}

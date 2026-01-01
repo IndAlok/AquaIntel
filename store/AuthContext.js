@@ -6,7 +6,6 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
-  sendEmailVerification,
   getIdToken,
 } from 'firebase/auth';
 import { auth, firebaseDisabled, signInWithGoogleWeb, db } from '../services/firebase';
@@ -17,7 +16,6 @@ const AuthContext = createContext({});
 
 export const useAuth = () => useContext(AuthContext);
 
-// Google Sign-In is available on web platform (uses Firebase popup auth)
 const isWebPlatform = Platform.OS === 'web';
 
 export const AuthProvider = ({ children }) => {
@@ -35,16 +33,13 @@ export const AuthProvider = ({ children }) => {
       return () => {};
     }
 
-    // Firebase Auth state listener with token refresh
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        // Verify the user's token is valid
         try {
-          await getIdToken(firebaseUser, true); // Force refresh to validate
+          await getIdToken(firebaseUser, true);
           setUser(firebaseUser);
           setAuthError(null);
 
-          // Update last login in Firestore (if db is available)
           if (db) {
             try {
               const userRef = doc(db, 'users', firebaseUser.uid);
@@ -60,12 +55,10 @@ export const AuthProvider = ({ children }) => {
                 { merge: true }
               );
             } catch (e) {
-              // Firestore update is optional, don't fail auth
               console.warn('Could not update user profile:', e.message);
             }
           }
         } catch (e) {
-          // Token invalid, sign out
           console.error('Token validation failed:', e.message);
           await signOut(auth);
           setUser(null);
@@ -97,13 +90,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Validate email format
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  // Validate password strength
   const isValidPassword = (password) => {
     return password && password.length >= 8;
   };
@@ -111,7 +102,6 @@ export const AuthProvider = ({ children }) => {
   const signup = async (email, password, name) => {
     if (firebaseDisabled) return { success: false, error: 'Authentication is disabled' };
 
-    // Input validation
     if (!email || !isValidEmail(email)) {
       return { success: false, error: 'Please enter a valid email address' };
     }
@@ -126,7 +116,6 @@ export const AuthProvider = ({ children }) => {
       const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
       await updateProfile(credential.user, { displayName: name.trim() });
 
-      // Create user profile in Firestore
       if (db) {
         try {
           const userRef = doc(db, 'users', credential.user.uid);
@@ -135,7 +124,7 @@ export const AuthProvider = ({ children }) => {
             displayName: name.trim(),
             createdAt: serverTimestamp(),
             lastLogin: serverTimestamp(),
-            role: 'user', // Default role
+            role: 'user',
           });
         } catch (e) {
           console.warn('Could not create user profile:', e.message);
@@ -157,7 +146,6 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     if (firebaseDisabled) return { success: false, error: 'Authentication is disabled' };
 
-    // Input validation
     if (!email || !isValidEmail(email)) {
       return { success: false, error: 'Please enter a valid email address' };
     }
@@ -192,7 +180,6 @@ export const AuthProvider = ({ children }) => {
       if (Platform.OS === 'web') {
         const result = await signInWithGoogleWeb();
 
-        // Create/update user profile in Firestore
         if (db && result.user) {
           try {
             const userRef = doc(db, 'users', result.user.uid);
@@ -259,7 +246,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Get current user's ID token for API calls
   const getAuthToken = async () => {
     if (!user) return null;
     try {

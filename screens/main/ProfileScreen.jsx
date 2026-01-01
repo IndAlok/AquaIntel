@@ -1,6 +1,4 @@
-﻿// User profile screen with account management
-
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Platform } from 'react-native';
 import {
   Text,
@@ -87,7 +85,6 @@ const ProfileScreen = () => {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       showsVerticalScrollIndicator={false}
     >
-      {/* Profile Header */}
       <Animatable.View animation="fadeInDown" duration={600}>
         <Card style={[styles.headerCard, { backgroundColor: theme.colors.primaryContainer }]}>
           <Card.Content style={styles.headerContent}>
@@ -118,7 +115,6 @@ const ProfileScreen = () => {
         </Card>
       </Animatable.View>
 
-      {/* Stats Grid */}
       <Animatable.View animation="fadeInUp" delay={200} duration={600}>
         <View style={styles.statsGrid}>
           {profileStats.map((stat, index) => (
@@ -143,7 +139,6 @@ const ProfileScreen = () => {
         </View>
       </Animatable.View>
 
-      {/* Account Sections */}
       {accountSections.map((section, sectionIndex) => (
         <Animatable.View
           key={sectionIndex}
@@ -176,7 +171,6 @@ const ProfileScreen = () => {
         </Animatable.View>
       ))}
 
-      {/* Action Buttons */}
       <Animatable.View animation="fadeInUp" delay={600} duration={600}>
         <View style={styles.actionsContainer}>
           <Button
@@ -199,7 +193,6 @@ const ProfileScreen = () => {
         </View>
       </Animatable.View>
 
-      {/* Edit Profile Dialog */}
       <Portal>
         <Dialog visible={editDialogVisible} onDismiss={() => setEditDialogVisible(false)}>
           <Dialog.Title>Edit Profile</Dialog.Title>
@@ -225,7 +218,6 @@ const ProfileScreen = () => {
           </Dialog.Actions>
         </Dialog>
 
-        {/* Logout Confirmation Dialog */}
         <Dialog visible={logoutDialogVisible} onDismiss={() => setLogoutDialogVisible(false)}>
           <Dialog.Title>Logout</Dialog.Title>
           <Dialog.Content>
@@ -240,7 +232,6 @@ const ProfileScreen = () => {
         </Dialog>
       </Portal>
 
-      {/* Snackbar for success messages */}
       <Snackbar
         visible={snackbarVisible}
         onDismiss={() => setSnackbarVisible(false)}

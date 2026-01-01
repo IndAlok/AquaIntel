@@ -1,7 +1,4 @@
-﻿// National Water Informatics Centre (NWIC) data adapter for AquaIntel
-// Handles national aggregation across multiple state/UT resources with graceful fallbacks.
-
-const BASE_URL = process.env.EXPO_PUBLIC_NWIC_API_URL;
+﻿const BASE_URL = process.env.EXPO_PUBLIC_NWIC_API_URL;
 const USE_REAL_DATA = process.env.EXPO_PUBLIC_USE_REAL_DATA === 'true';
 const DEFAULT_LIMIT = 1000;
 const RATE_DELAY_MS = 500;
@@ -9,19 +6,19 @@ const STALE_DAYS = 30;
 
 const HARDCODED_RESOURCES = {
   gw_level_ts: [
-    '8b8f17d0-b56e-4bdc-8d62-9d26d5a4db1e', // CGWB GW Telemetry Hourly (Uttarakhand)
-    'e24d301d-5031-44cb-9972-f46972bc2c69', // Meghalaya
-    '3e596059-2542-41c7-88ad-d5efe4aac107', // Assam (example addition)
+    '8b8f17d0-b56e-4bdc-8d62-9d26d5a4db1e',
+    'e24d301d-5031-44cb-9972-f46972bc2c69',
+    '3e596059-2542-41c7-88ad-d5efe4aac107',
   ],
   rainfall: [
-    'c1a15f25-fa47-4313-a5d0-afbda01ac2f2', // Delhi
-    '1db0a829-05f8-4e02-b125-e74d3242789c', // Delhi (historical)
-    '241b4002-4054-43e6-85c4-d56fb486371f', // Uttar Pradesh
+    'c1a15f25-fa47-4313-a5d0-afbda01ac2f2',
+    '1db0a829-05f8-4e02-b125-e74d3242789c',
+    '241b4002-4054-43e6-85c4-d56fb486371f',
   ],
   water_quality: [
-    '5b6b9c20-0af6-4af4-bb0c-16cb7d40b10e', // Andhra Pradesh
-    '9221eabd-c583-469b-87a9-7da93d49dabb', // Delhi
-    'c492f113-a81c-4a43-90e5-65fdbc94ef1a', // Meghalaya
+    '5b6b9c20-0af6-4af4-bb0c-16cb7d40b10e',
+    '9221eabd-c583-469b-87a9-7da93d49dabb',
+    'c492f113-a81c-4a43-90e5-65fdbc94ef1a',
   ],
 };
 

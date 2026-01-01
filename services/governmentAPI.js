@@ -1,39 +1,21 @@
-﻿// Integration with Indian Government Water Resources APIs
-
-/**
- * Government Data Sources:
- * 1. CGWB (Central Ground Water Board) - Water level data
- * 2. WRIS (Water Resources Information System) - Comprehensive water data
- * 3. IMD (India Meteorological Department) - Rainfall data
- * 4. NWIC (National Water Informatics Centre) - Real-time monitoring
- */
-
-const API_TIMEOUT = 30000; // 30 seconds
+﻿const API_TIMEOUT = 30000;
 
 class GovernmentAPIService {
   constructor() {
-    // API Base URLs
     this.CGWB_URL = 'https://cgwb.gov.in';
     this.WRIS_URL = process.env.EXPO_PUBLIC_WRIS_API_URL || 'https://indiawris.gov.in/wris';
     this.IMD_URL = process.env.EXPO_PUBLIC_IMD_API_URL || 'https://mausam.imd.gov.in';
     
-    // API Keys (optional - many govt APIs are open)
     this.WRIS_API_KEY = process.env.EXPO_PUBLIC_WRIS_API_KEY;
     this.IMD_API_KEY = process.env.EXPO_PUBLIC_IMD_API_KEY;
     
     this.useRealData = process.env.EXPO_PUBLIC_USE_REAL_DATA === 'true';
   }
 
-  /**
-   * Fetch DWLR (Digital Water Level Recorder) stations data from CGWB
-   * Note: CGWB data is available via their open data portal
-   */
   async fetchDWLRStations(state = null, district = null) {
     try {
       console.log('ðŸ“¡ Fetching DWLR stations from CGWB...');
       
-      // CGWB Open Data Portal endpoint
-      // Note: Replace with actual endpoint when available
       const params = new URLSearchParams();
       if (state) params.append('state', state);
       if (district) params.append('district', district);
@@ -49,15 +31,12 @@ class GovernmentAPIService {
       
       throw new Error('No data received from CGWB');
     } catch (error) {
-      console.error('âŒ Error fetching CGWB data:', error.message);
-      console.log('â„¹ï¸  Using fallback data');
+      console.error('â Œ Error fetching CGWB data:', error.message);
+      console.log('â„¹ï¸   Using fallback data');
       return null;
     }
   }
 
-  /**
-   * Fetch real-time water level data for a specific station
-   */
   async fetchWaterLevelData(stationId, days = 30) {
     try {
       console.log(`ðŸ“Š Fetching water level data for station: ${stationId}`);
@@ -75,17 +54,14 @@ class GovernmentAPIService {
       
       return null;
     } catch (error) {
-      console.error(`âŒ Error fetching water level data:`, error.message);
+      console.error(`â Œ Error fetching water level data:`, error.message);
       return null;
     }
   }
 
-  /**
-   * Fetch rainfall data from IMD
-   */
   async fetchRainfallData(state, district, year) {
     try {
-      console.log(`ðŸŒ§ï¸  Fetching rainfall data for ${district}, ${state}`);
+      console.log(`ðŸŒ§ï¸   Fetching rainfall data for ${district}, ${state}`);
       
       const headers = {};
       if (this.IMD_API_KEY) {
@@ -101,14 +77,11 @@ class GovernmentAPIService {
       
       return null;
     } catch (error) {
-      console.error('âŒ Error fetching rainfall data:', error.message);
+      console.error('â Œ Error fetching rainfall data:', error.message);
       return null;
     }
   }
 
-  /**
-   * Fetch groundwater quality data
-   */
   async fetchWaterQualityData(stationId) {
     try {
       console.log(`ðŸ§ª Fetching water quality data for station: ${stationId}`);
@@ -119,7 +92,7 @@ class GovernmentAPIService {
       if (response && response.data) {
         return {
           ph: response.data.ph,
-          tds: response.data.tds, // Total Dissolved Solids
+          tds: response.data.tds,
           hardness: response.data.hardness,
           fluoride: response.data.fluoride,
           arsenic: response.data.arsenic,
@@ -130,14 +103,11 @@ class GovernmentAPIService {
       
       return null;
     } catch (error) {
-      console.error('âŒ Error fetching water quality data:', error.message);
+      console.error('â Œ Error fetching water quality data:', error.message);
       return null;
     }
   }
 
-  /**
-   * Fetch state-wise groundwater statistics
-   */
   async fetchStateStatistics(state) {
     try {
       console.log(`ðŸ“ˆ Fetching statistics for state: ${state}`);
@@ -163,17 +133,14 @@ class GovernmentAPIService {
       
       return null;
     } catch (error) {
-      console.error('âŒ Error fetching state statistics:', error.message);
+      console.error('â Œ Error fetching state statistics:', error.message);
       return null;
     }
   }
 
-  /**
-   * Fetch drought monitoring data
-   */
   async fetchDroughtData() {
     try {
-      console.log('ðŸœï¸  Fetching drought monitoring data...');
+      console.log('ðŸ œï¸   Fetching drought monitoring data...');
       
       const url = `${this.WRIS_URL}/api/drought-monitor`;
       const response = await this.makeRequest(url);
@@ -182,7 +149,7 @@ class GovernmentAPIService {
         return response.data.map(area => ({
           state: area.state,
           district: area.district,
-          severity: area.drought_severity, // 'Normal', 'Moderate', 'Severe', 'Extreme'
+          severity: area.drought_severity,
           affectedArea: area.affected_area_sqkm,
           population: area.affected_population
         }));
@@ -190,14 +157,11 @@ class GovernmentAPIService {
       
       return null;
     } catch (error) {
-      console.error('âŒ Error fetching drought data:', error.message);
+      console.error('â Œ Error fetching drought data:', error.message);
       return null;
     }
   }
 
-  /**
-   * Generic request handler with timeout and error handling
-   */
   async makeRequest(url, headers = {}) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), API_TIMEOUT);
@@ -219,8 +183,8 @@ class GovernmentAPIService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-  const data = await response.json();
-  return { data };
+      const data = await response.json();
+      return { data };
     } catch (error) {
       clearTimeout(timeout);
       
@@ -232,9 +196,6 @@ class GovernmentAPIService {
     }
   }
 
-  /**
-   * Transform CGWB station data to our app format
-   */
   transformCGWBStation(cgwbData) {
     return {
       id: cgwbData.station_id || cgwbData.id,
@@ -254,9 +215,6 @@ class GovernmentAPIService {
     };
   }
 
-  /**
-   * Determine station status based on water level thresholds
-   */
   determineStatus(stationData) {
     const waterLevel = parseFloat(stationData.current_water_level || stationData.water_level);
     const criticalLevel = parseFloat(stationData.critical_level || 2);
@@ -271,9 +229,6 @@ class GovernmentAPIService {
     }
   }
 
-  /**
-   * Check if government APIs are available
-   */
   async checkAPIAvailability() {
     const apis = {
       cgwb: false,
@@ -282,7 +237,6 @@ class GovernmentAPIService {
     };
     
     try {
-      // Check CGWB
       const cgwbResponse = await fetch(`${this.CGWB_URL}/api/health`, { method: 'HEAD' });
       apis.cgwb = cgwbResponse.ok;
     } catch (error) {
@@ -290,7 +244,6 @@ class GovernmentAPIService {
     }
     
     try {
-      // Check WRIS
       const wrisResponse = await fetch(`${this.WRIS_URL}/api/health`, { method: 'HEAD' });
       apis.wris = wrisResponse.ok;
     } catch (error) {
@@ -298,7 +251,6 @@ class GovernmentAPIService {
     }
     
     try {
-      // Check IMD
       const imdResponse = await fetch(`${this.IMD_URL}/api/health`, { method: 'HEAD' });
       apis.imd = imdResponse.ok;
     } catch (error) {
@@ -309,7 +261,6 @@ class GovernmentAPIService {
   }
 }
 
-// Export singleton instance
 export const govAPI = new GovernmentAPIService();
 
 export default govAPI;

@@ -1,5 +1,3 @@
-// Floating AI Assistant Button with Chat Interface
-
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,

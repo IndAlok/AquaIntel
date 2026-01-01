@@ -1,6 +1,4 @@
-﻿// Detailed view of a single DWLR station with charts and analytics
-
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import { Text, useTheme, Card, Chip, Divider, List, SegmentedButtons } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -10,6 +8,9 @@ import DataCard from '../../components/DataCard';
 import dataService from '../../services/dataService';
 import DataSourceBadge from '../../components/DataSourceBadge';
 import { useAppTheme } from '../../store/ThemeContext';
+import Markdown from 'react-native-markdown-display';
+import { useMemo } from 'react';
+import { Platform } from 'react-native';
 
 const StationDetailScreen = ({ route }) => {
   const theme = useTheme();
@@ -22,6 +23,70 @@ const StationDetailScreen = ({ route }) => {
   const [aiInsights, setAIInsights] = useState(null);
   const [timeRange, setTimeRange] = useState('30d');
   const [loading, setLoading] = useState(true);
+
+  const markdownStyles = useMemo(
+    () => ({
+      body: {
+        color: theme.colors.onSurface,
+        fontSize: 14,
+        lineHeight: 20,
+      },
+      paragraph: {
+        marginTop: 0,
+        marginBottom: 8,
+      },
+      heading1: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        color: theme.colors.onSurface,
+      },
+      heading2: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 6,
+        color: theme.colors.onSurface,
+      },
+      heading3: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 4,
+        color: theme.colors.onSurface,
+      },
+      strong: {
+        fontWeight: 'bold',
+      },
+      em: {
+        fontStyle: 'italic',
+      },
+      bullet_list: {
+        marginVertical: 4,
+      },
+      ordered_list: {
+        marginVertical: 4,
+      },
+      list_item: {
+        marginVertical: 2,
+      },
+      code_inline: {
+        backgroundColor: theme.colors.surfaceVariant,
+        paddingHorizontal: 4,
+        paddingVertical: 2,
+        borderRadius: 4,
+        fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+        fontSize: 13,
+      },
+      code_block: {
+        backgroundColor: theme.colors.surfaceVariant,
+        padding: 12,
+        borderRadius: 8,
+        fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+        fontSize: 13,
+        marginVertical: 8,
+      },
+    }),
+    [theme]
+  );
 
   useEffect(() => {
     loadStationData();
@@ -45,7 +110,6 @@ const StationDetailScreen = ({ route }) => {
         setAIInsights(await dataService.getAIInsights(stationId));
       }
     } catch (error) {
-      // Silently handle error
     } finally {
       setLoading(false);
     }
@@ -67,7 +131,6 @@ const StationDetailScreen = ({ route }) => {
       <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 }}>
         <DataSourceBadge />
       </View>
-      {/* Station Header */}
       <Card style={[styles.headerCard, { backgroundColor: colors.surface }]}>
         <Card.Content>
           <View style={styles.header}>
@@ -119,7 +182,6 @@ const StationDetailScreen = ({ route }) => {
         </Card.Content>
       </Card>
 
-      {/* Current Status Gauge */}
       <Card style={[styles.card, { backgroundColor: colors.surface }]}>
         <Card.Content>
           <GaugeIndicator
@@ -137,7 +199,6 @@ const StationDetailScreen = ({ route }) => {
         </Card.Content>
       </Card>
 
-      {/* Key Metrics */}
       <View style={styles.metricsGrid}>
         <DataCard
           title="Total Depth"
@@ -154,7 +215,6 @@ const StationDetailScreen = ({ route }) => {
         />
       </View>
 
-      {/* AI Insights & Alerts */}
       {aiInsights && aiInsights.alerts && aiInsights.alerts.length > 0 && (
         <Card style={[styles.card, styles.alertCard, { backgroundColor: colors.surface }]}>
           <Card.Content>
@@ -184,7 +244,6 @@ const StationDetailScreen = ({ route }) => {
         </Card>
       )}
 
-      {/* Time Series Chart */}
       <Card style={[styles.card, { backgroundColor: colors.surface }]}>
         <Card.Content>
           <Text variant="titleMedium" style={[styles.chartTitle, { color: colors.onSurface }]}>
@@ -204,7 +263,6 @@ const StationDetailScreen = ({ route }) => {
         </Card.Content>
       </Card>
 
-      {/* Risk Assessment */}
       {riskAssessment && (
         <Card style={[styles.card, { backgroundColor: colors.surface }]}>
           <Card.Content>
@@ -266,7 +324,6 @@ const StationDetailScreen = ({ route }) => {
         </Card>
       )}
 
-      {/* Recommendations */}
       {riskAssessment && riskAssessment.recommendations && (
         <Card style={[styles.card, { backgroundColor: colors.surface }]}>
           <Card.Content>
@@ -288,7 +345,6 @@ const StationDetailScreen = ({ route }) => {
         </Card>
       )}
 
-      {/* AI Insights */}
       {aiInsights && aiInsights.insights && aiInsights.insights.length > 0 && (
         <Card style={[styles.card, { backgroundColor: colors.surface }]}>
           <Card.Content>
@@ -310,12 +366,9 @@ const StationDetailScreen = ({ route }) => {
                   >
                     {insight.type.toUpperCase()}
                   </Text>
-                  <Text
-                    variant="bodyMedium"
-                    style={[styles.insightMessage, { color: colors.onSurface }]}
-                  >
-                    {insight.message}
-                  </Text>
+                  <View style={styles.insightMessage}>
+                    <Markdown style={markdownStyles}>{insight.message}</Markdown>
+                  </View>
                   <Text
                     variant="bodySmall"
                     style={[styles.insightImpact, { color: colors.onSurfaceVariant }]}
@@ -329,7 +382,6 @@ const StationDetailScreen = ({ route }) => {
         </Card>
       )}
 
-      {/* Station Details */}
       <Card style={[styles.card, { backgroundColor: colors.surface }]}>
         <Card.Content>
           <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>

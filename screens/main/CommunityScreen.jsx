@@ -1,6 +1,4 @@
-﻿// Community forum and collaboration screen
-
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import {
   Text,
@@ -22,7 +20,6 @@ const CommunityScreen = () => {
   const [filterCategory, setFilterCategory] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
 
-  // Mock community posts data
   const posts = [
     {
       id: '1',
@@ -185,7 +182,6 @@ const CommunityScreen = () => {
       >
         <Card style={styles.postCard}>
           <Card.Content>
-            {/* Author Header */}
             <View style={styles.authorHeader}>
               <Avatar.Text
                 size={40}
@@ -212,7 +208,6 @@ const CommunityScreen = () => {
               />
             </View>
 
-            {/* Post Content */}
             <View style={styles.postContent}>
               <View style={styles.titleRow}>
                 <Text variant="titleMedium" style={{ color: theme.colors.onSurface, flex: 1 }}>
@@ -238,7 +233,6 @@ const CommunityScreen = () => {
                 {post.content}
               </Text>
 
-              {/* Tags */}
               <View style={styles.tagsContainer}>
                 {post.tags.map((tag, tagIndex) => (
                   <Chip
@@ -253,7 +247,6 @@ const CommunityScreen = () => {
               </View>
             </View>
 
-            {/* Post Actions */}
             <View style={styles.actionsContainer}>
               <Button
                 icon="thumb-up-outline"
@@ -291,7 +284,6 @@ const CommunityScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Header */}
       <Animatable.View animation="fadeInDown" duration={600}>
         <Card style={[styles.headerCard, { backgroundColor: theme.colors.primaryContainer }]}>
           <Card.Content style={styles.headerContent}>
@@ -338,7 +330,6 @@ const CommunityScreen = () => {
         </Card>
       </Animatable.View>
 
-      {/* Search and Filter */}
       <Animatable.View animation="fadeIn" delay={200} duration={600}>
         <View style={styles.controlsContainer}>
           <Searchbar
@@ -357,7 +348,6 @@ const CommunityScreen = () => {
         </View>
       </Animatable.View>
 
-      {/* Posts List */}
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -385,7 +375,6 @@ const CommunityScreen = () => {
         )}
       </ScrollView>
 
-      {/* Create Post FAB */}
       <FAB
         icon="plus"
         label="New Post"

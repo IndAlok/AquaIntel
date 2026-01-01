@@ -1,6 +1,4 @@
-﻿// Predictive analytics and forecasting screen - FULLY FIXED
-
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { Text, Card, SegmentedButtons, Searchbar, List, Chip } from 'react-native-paper';
 import { VictoryChart, VictoryLine, VictoryScatter, VictoryAxis, VictoryLegend, VictoryTheme, VictoryArea } from 'victory-native';
@@ -78,7 +76,6 @@ const ForecastScreen = () => {
 
   return (
     <ScrollView style={dynamicStyles.container}>
-      {/* Station Selector */}
       <Card style={dynamicStyles.card}>
         <Card.Content>
           <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
@@ -128,7 +125,6 @@ const ForecastScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* Selected Station Info */}
       {selectedStation && (
         <Card style={dynamicStyles.card}>
           <Card.Content>
@@ -152,7 +148,6 @@ const ForecastScreen = () => {
         </Card>
       )}
 
-      {/* Time Horizon Selector */}
       <Card style={dynamicStyles.card}>
         <Card.Content>
           <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
@@ -171,7 +166,6 @@ const ForecastScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* Prediction Chart */}
       <Card style={dynamicStyles.card}>
         <Card.Content>
           <Text variant="titleMedium" style={[styles.chartTitle, { color: colors.onSurface }]}>
@@ -184,7 +178,7 @@ const ForecastScreen = () => {
             width={Math.min(width - 64, 600)}
             height={300}
             theme={VictoryTheme.material}
-            padding={{ top: 20, bottom: 40, left: 50, right: 20 }}
+            padding={{ top: 20, bottom: 50, left: 65, right: 20 }}
           >
             <VictoryAxis
               style={{
@@ -235,7 +229,6 @@ const ForecastScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* Monthly Predictions Summary */}
       <Card style={dynamicStyles.card}>
         <Card.Content>
           <Text variant="titleMedium" style={[styles.sectionTitle, { color: colors.onSurface }]}>
@@ -293,7 +286,6 @@ const ForecastScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* Methodology */}
       <Card style={dynamicStyles.card}>
         <Card.Content>
           <View style={styles.methodologyHeader}>
@@ -336,11 +328,10 @@ const ForecastScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* Disclaimer */}
       <Card style={dynamicStyles.disclaimerCard}>
         <Card.Content>
           <Text variant="bodySmall" style={[styles.disclaimer, { color: colors.onSurface }]}>
-            âš ï¸ Disclaimer: These predictions are based on statistical models and historical data.
+            âš ï¸  Disclaimer: These predictions are based on statistical models and historical data.
             Actual water levels may vary due to unforeseen events, policy changes, or extreme
             weather conditions. Always consult with local authorities for critical decisions.
           </Text>

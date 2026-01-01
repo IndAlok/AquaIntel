@@ -1,6 +1,4 @@
-﻿// Custom drawer menu with profile section and navigation
-
-import React from 'react';
+﻿import React from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Image, Platform } from 'react-native';
 import { Drawer, Text, Avatar, Divider, Switch, useTheme, Badge } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -15,7 +13,6 @@ const DrawerContent = (props) => {
   const { isDark, toggleTheme } = useAppTheme();
   const { navigation, state } = props;
 
-  // Get current route name more reliably
   const currentRoute =
     state?.routes?.[state?.index]?.name || state?.routeNames?.[state?.index] || 'Dashboard';
 
@@ -24,10 +21,8 @@ const DrawerContent = (props) => {
     navigation.closeDrawer();
   };
 
-  // Handle navigation with drawer close
   const handleNavigation = (route) => {
     navigation.navigate(route);
-    // Close drawer after navigation on web
     if (Platform.OS === 'web') {
       setTimeout(() => navigation.closeDrawer(), 100);
     }
@@ -105,7 +100,6 @@ const DrawerContent = (props) => {
       contentContainerStyle={styles.drawerContent}
       style={{ backgroundColor: theme.colors.background }}
     >
-      {/* User Profile Section */}
       <Animatable.View animation="fadeInLeft" duration={600}>
         <View style={[styles.userSection, { backgroundColor: theme.colors.surfaceVariant }]}>
           <TouchableOpacity
@@ -141,7 +135,6 @@ const DrawerContent = (props) => {
 
       <Divider style={styles.divider} />
 
-      {/* Main Menu Items */}
       <Animatable.View animation="fadeInLeft" delay={200} duration={600}>
         <View style={styles.menuSection}>
           <Text
@@ -185,7 +178,6 @@ const DrawerContent = (props) => {
 
       <Divider style={styles.divider} />
 
-      {/* Additional Features */}
       <Animatable.View animation="fadeInLeft" delay={400} duration={600}>
         <View style={styles.menuSection}>
           <Text
@@ -223,7 +215,6 @@ const DrawerContent = (props) => {
 
       <Divider style={styles.divider} />
 
-      {/* Theme Toggle */}
       <Animatable.View animation="fadeInLeft" delay={600} duration={600}>
         <View style={styles.themeSection}>
           <View style={styles.themeToggle}>
@@ -242,7 +233,6 @@ const DrawerContent = (props) => {
 
       <Divider style={styles.divider} />
 
-      {/* Logout Button */}
       <Animatable.View animation="fadeInLeft" delay={800} duration={600}>
         <Drawer.Item
           label="Logout"
@@ -254,7 +244,6 @@ const DrawerContent = (props) => {
         />
       </Animatable.View>
 
-      {/* App Version */}
       <View style={styles.footer}>
         <Text variant="labelSmall" style={{ color: theme.colors.outline, textAlign: 'center' }}>
           AquaIntel v1.0.0

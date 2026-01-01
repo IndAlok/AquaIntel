@@ -1,6 +1,4 @@
-﻿// Notifications and alerts screen
-
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import {
   Text,
@@ -20,7 +18,6 @@ const NotificationsScreen = () => {
   const [filterType, setFilterType] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
 
-  // Mock notifications data
   const notifications = [
     {
       id: '1',
@@ -129,12 +126,10 @@ const NotificationsScreen = () => {
   const getFilteredNotifications = () => {
     let filtered = notifications;
 
-    // Filter by type
     if (filterType !== 'all') {
       filtered = filtered.filter((n) => n.type === filterType);
     }
 
-    // Filter by search
     if (searchQuery.trim()) {
       filtered = filtered.filter(
         (n) =>
@@ -233,7 +228,6 @@ const NotificationsScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      {/* Header Stats */}
       <Animatable.View animation="fadeInDown" duration={600}>
         <Card style={[styles.headerCard, { backgroundColor: theme.colors.primaryContainer }]}>
           <Card.Content style={styles.headerContent}>
@@ -268,7 +262,6 @@ const NotificationsScreen = () => {
         </Card>
       </Animatable.View>
 
-      {/* Search and Filter */}
       <Animatable.View animation="fadeIn" delay={200} duration={600}>
         <View style={styles.controlsContainer}>
           <Searchbar
@@ -287,7 +280,6 @@ const NotificationsScreen = () => {
         </View>
       </Animatable.View>
 
-      {/* Notifications List */}
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

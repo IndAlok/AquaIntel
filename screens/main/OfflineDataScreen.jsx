@@ -1,6 +1,4 @@
-﻿// Offline data management and sync screen
-
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import {
   Text,
@@ -26,7 +24,6 @@ const OfflineDataScreen = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState(new Date());
 
-  // Mock offline data
   const offlineData = [
     {
       id: '1',
@@ -103,7 +100,6 @@ const OfflineDataScreen = () => {
   };
 
   useEffect(() => {
-    // Check network connectivity
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsConnected(state.isConnected);
     });
@@ -143,7 +139,6 @@ const OfflineDataScreen = () => {
     setIsSyncing(true);
     setSyncProgress(0);
 
-    // Simulate sync progress
     const interval = setInterval(() => {
       setSyncProgress((prev) => {
         if (prev >= 1) {
@@ -158,7 +153,6 @@ const OfflineDataScreen = () => {
   };
 
   const handleClearCache = async () => {
-    // TODO: Implement cache clearing
     alert('Cache cleared successfully!');
   };
 
@@ -196,7 +190,6 @@ const OfflineDataScreen = () => {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       showsVerticalScrollIndicator={false}
     >
-      {/* Connection Status */}
       <Animatable.View animation="fadeInDown" duration={600}>
         <Card
           style={[
@@ -245,7 +238,6 @@ const OfflineDataScreen = () => {
         </Card>
       </Animatable.View>
 
-      {/* Storage Stats */}
       <Animatable.View animation="fadeInUp" delay={200} duration={600}>
         <Card style={styles.statsCard}>
           <Card.Content>
@@ -296,7 +288,6 @@ const OfflineDataScreen = () => {
         </Card>
       </Animatable.View>
 
-      {/* Sync Controls */}
       <Animatable.View animation="fadeInUp" delay={300} duration={600}>
         <Card style={styles.syncCard}>
           <Card.Content>
@@ -349,7 +340,6 @@ const OfflineDataScreen = () => {
         </Card>
       </Animatable.View>
 
-      {/* Offline Data Items */}
       <Animatable.View animation="fadeInUp" delay={400} duration={600}>
         <Card style={styles.dataCard}>
           <Card.Content>
@@ -387,7 +377,6 @@ const OfflineDataScreen = () => {
         </Card>
       </Animatable.View>
 
-      {/* Help Section */}
       <Animatable.View animation="fadeInUp" delay={500} duration={600}>
         <Card style={styles.helpCard}>
           <Card.Content>

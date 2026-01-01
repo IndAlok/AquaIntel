@@ -1,5 +1,3 @@
-// Gemini Flash 2.5 AI Integration for AquaIntel Assistant
-
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,7 +10,6 @@ if (!API_KEY) {
 
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
-// Emoji constants for consistent rendering
 const EMOJI = {
   water: '\u{1F4A7}',
   rain: '\u{1F327}\u{FE0F}',
@@ -27,7 +24,6 @@ const EMOJI = {
   check: '\u{2705}',
 };
 
-// System prompt for AquaIntel AI Assistant
 const getSystemPrompt = (userContext) => {
   const { name, region, district, state, role, preferences } = userContext || {};
   
@@ -88,7 +84,6 @@ ${EMOJI.check} Recharge pit construction
 Remember: You're here to empower users with water intelligence! ${EMOJI.water}`;
 };
 
-// Chat history storage
 const CHAT_HISTORY_KEY = '@aquaintel_chat_history';
 
 class GeminiAIService {
@@ -105,14 +100,13 @@ class GeminiAIService {
 
     this.userContext = userContext;
     
-    // Use Gemini Flash 2.5 (fast and efficient)
     this.model = genAI.getGenerativeModel({ 
       model: 'gemini-2.0-flash-exp',
       generationConfig: {
-        temperature: 0.7, // Balanced creativity
+        temperature: 0.7,
         topP: 0.9,
         topK: 40,
-        maxOutputTokens: 1024, // Concise responses
+        maxOutputTokens: 1024,
       },
       safetySettings: [
         {
@@ -126,10 +120,8 @@ class GeminiAIService {
       ],
     });
 
-    // Load previous chat history
     const history = await this.loadChatHistory();
     
-    // Start new chat session with system prompt
     this.chat = this.model.startChat({
       history: [
         {
@@ -140,7 +132,7 @@ class GeminiAIService {
           role: 'model',
           parts: [{ text: `Hello! I'm your AquaIntel AI Assistant. I'm here to help you with groundwater data, water management, and conservation. What would you like to know? ${EMOJI.water}` }],
         },
-        ...history,
+        ...history.map(({ role, parts }) => ({ role, parts })),
       ],
     });
 
@@ -153,7 +145,6 @@ class GeminiAIService {
     }
 
     try {
-      // Add real-time context if available
       let contextualMessage = userMessage;
       if (Object.keys(additionalContext).length > 0) {
         contextualMessage += `\n\n[Current Context: ${JSON.stringify(additionalContext)}]`;
@@ -162,7 +153,6 @@ class GeminiAIService {
       const result = await this.chat.sendMessage(contextualMessage);
       const response = result.response.text();
 
-      // Save to history
       await this.saveChatMessage('user', userMessage);
       await this.saveChatMessage('model', response);
 
@@ -191,7 +181,6 @@ class GeminiAIService {
         timestamp: new Date().toISOString(),
       });
 
-      // Keep only last 50 messages
       const recentHistory = history.slice(-50);
       await AsyncStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(recentHistory));
     } catch (error) {
@@ -223,7 +212,6 @@ class GeminiAIService {
     this.userContext = { ...this.userContext, ...newContext };
   }
 
-  // Predefined quick questions
   getQuickQuestions(region) {
     const questions = [
       `${EMOJI.water} What is the current water level trend in my area?`,
@@ -239,7 +227,6 @@ class GeminiAIService {
     return questions;
   }
 
-  // Get contextual suggestions based on app state
   getSuggestions(appState) {
     const { waterLevel, rainfall, season, alerts } = appState || {};
     const suggestions = [];
@@ -268,7 +255,6 @@ class GeminiAIService {
   }
 }
 
-// Singleton instance
 const geminiAI = new GeminiAIService();
 
 export default geminiAI;

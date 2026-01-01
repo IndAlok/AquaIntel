@@ -3,7 +3,6 @@ import {
   getAuth,
   initializeAuth,
   getReactNativePersistence,
-  browserLocalPersistence,
   GoogleAuthProvider,
   signInWithPopup,
   signInWithCredential,
@@ -48,26 +47,20 @@ let googleProvider = null;
 
 if (!firebaseDisabled) {
   try {
-    // Initialize app only once
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-    // Initialize auth based on platform
     if (Platform.OS === 'web') {
-      // On web, use getAuth which handles persistence automatically
       auth = getAuth(app);
     } else {
-      // On native, use initializeAuth with AsyncStorage persistence
       try {
         auth = initializeAuth(app, {
           persistence: getReactNativePersistence(AsyncStorage),
         });
       } catch (e) {
-        // If already initialized, get existing instance
         auth = getAuth(app);
       }
     }
 
-    // Initialize Google Auth Provider
     googleProvider = new GoogleAuthProvider();
     googleProvider.addScope('profile');
     googleProvider.addScope('email');

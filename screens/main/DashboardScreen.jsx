@@ -1,6 +1,4 @@
-﻿// Main dashboard with overview metrics and station list
-
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -122,7 +120,7 @@ const DashboardScreen = ({ navigation }) => {
     return (
       <View style={[dynamicStyles.container, styles.loadingCenter]}>
         <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={{ marginTop: 8, color: colors.onSurfaceVariant }}>Loading dataâ€¦</Text>
+        <Text style={{ marginTop: 8, color: colors.onSurfaceVariant }}>Loading data...</Text>
       </View>
     );
   }
@@ -148,7 +146,6 @@ const DashboardScreen = ({ navigation }) => {
           ) : null}
         </View>
 
-        {/* Header Stats with animations */}
         <Animatable.View animation="fadeInDown" duration={600} style={styles.metricsContainer}>
           <View style={styles.metricsRow}>
             <Animatable.View animation="zoomIn" delay={100} duration={500} style={{ flex: 1 }}>
@@ -193,7 +190,6 @@ const DashboardScreen = ({ navigation }) => {
           </Text>
         </Animatable.View>
 
-        {/* Monsoon Status with animation */}
         <Animatable.View animation="fadeInUp" delay={300} duration={600}>
           <Card style={dynamicStyles.monsoonCard}>
             <Card.Content>
@@ -227,7 +223,6 @@ const DashboardScreen = ({ navigation }) => {
           </Card>
         </Animatable.View>
 
-        {/* Map Preview Card */}
         <Animatable.View animation="fadeInUp" delay={350} duration={600}>
           <TouchableOpacity onPress={() => navigation.navigate('Map')} activeOpacity={0.9}>
             <Card style={[dynamicStyles.monsoonCard, { overflow: 'hidden' }]}>
@@ -308,7 +303,6 @@ const DashboardScreen = ({ navigation }) => {
           </TouchableOpacity>
         </Animatable.View>
 
-        {/* Search and Filters */}
         <Animatable.View animation="fadeIn" delay={400} duration={600}>
           <View style={styles.searchContainer}>
             <Searchbar
@@ -361,7 +355,6 @@ const DashboardScreen = ({ navigation }) => {
           </View>
         </Animatable.View>
 
-        {/* Station List */}
         <Animatable.View animation="fadeInUp" delay={500} duration={600}>
           <View style={styles.stationsContainer}>
             <Text variant="titleLarge" style={[styles.sectionTitle, { color: colors.onSurface }]}>
